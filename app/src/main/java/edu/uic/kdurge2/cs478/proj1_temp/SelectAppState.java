@@ -13,13 +13,19 @@ public class SelectAppState extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_app_state);
 
-        Button btn = (Button) findViewById(R.id.predict);
-        btn.setEnabled(false);
+        //Button btn = (Button) findViewById(R.id.predict);
+        //btn.setEnabled(false);
     }
 
     public void startCollectActivity(View view){
         Intent i = new Intent(this,MainActivity.class);
         startActivity(i);
+    }
+
+    public void startPredictionActivity(View view){
+        Intent i = new Intent(this,PredictionMainActivity.class);
+        startActivity(i);
+
     }
 
 }

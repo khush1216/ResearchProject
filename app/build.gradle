@@ -3,6 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 26
     defaultConfig {
+        multiDexEnabled true
         applicationId "edu.uic.kdurge2.cs478.proj1_temp"
         minSdkVersion 16
         targetSdkVersion 26
@@ -19,7 +20,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation 'com.google.firebase:firebase-storage:11.8.0'
@@ -29,5 +30,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
     compile 'com.google.firebase:firebase-core:11.8.0'
     compile 'com.firebaseui:firebase-ui-auth:3.2.2'
+    implementation files('libs/weka.jar')
 }
 apply plugin: 'com.google.gms.google-services'

@@ -32,7 +32,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SelectAppState"></activity>
+        <activity android:name=".SelectAppState" />
+        <activity android:name=".PredictionMainActivity" />
+
+        <service
+            android:name=".ServiceSensor"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
