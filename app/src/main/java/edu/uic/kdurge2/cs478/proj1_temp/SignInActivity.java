@@ -3,6 +3,7 @@ package edu.uic.kdurge2.cs478.proj1_temp;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -37,6 +38,11 @@ public class SignInActivity extends AppCompatActivity {
                         .setAvailableProviders(providers)
                         .build(),
                 RC_SIGN_IN);
+
+//        startActivityForResult(AuthUI.getInstance()
+//                                .createSignInIntentBuilder()
+//                                .setIsSmartLockEnabled(false)
+//        .setAvailableProviders(providers).build(),RC_SIGN_IN);
     }
 
     @Override
@@ -54,6 +60,7 @@ public class SignInActivity extends AppCompatActivity {
                 // ...
             } else {
                 //sign in failed
+                Log.i("error",response.toString());
                 Toast.makeText(this, "Unable to Sign in! :(", Toast.LENGTH_SHORT).show();
 
             }

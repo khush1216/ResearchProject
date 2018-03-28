@@ -26,6 +26,6 @@ public class SelectAppState extends AppCompatActivity {
         Intent i = new Intent(this,PredictionMainActivity.class);
         startActivity(i);
 
-    }
+   }
 
 }
