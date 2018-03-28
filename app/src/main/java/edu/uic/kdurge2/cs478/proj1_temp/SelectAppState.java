@@ -27,5 +27,10 @@ public class SelectAppState extends AppCompatActivity {
         startActivity(i);
 
    }
+    public void viewOnMap(View view){
+        Intent i = new Intent(this,MapsActivity.class);
+        startActivity(i);
+
+    }
 
 }

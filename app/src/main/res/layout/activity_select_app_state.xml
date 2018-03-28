@@ -31,4 +31,12 @@
         android:text="PREDICT MY ACTIVITY" />
 
 
+    <Button
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="viewOnMap"
+        android:text="VIEW ON MAP" />
+
+
 </LinearLayout>
