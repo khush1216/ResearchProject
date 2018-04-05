@@ -43,7 +43,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".SelectAppState" />
-        <activity android:name=".PredictionMainActivity" />
+        <activity android:name=".PredictionMainActivity"
+            android:exported="true"/>
 
         <service
             android:name=".ServiceSensor"

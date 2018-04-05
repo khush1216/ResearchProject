@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "475547164120",
+    "firebase_url": "https://datacollection-30f75.firebaseio.com",
+    "project_id": "datacollection-30f75",
+    "storage_bucket": "datacollection-30f75.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:475547164120:android:1e2664d66368af6f",
+        "android_client_info": {
+          "package_name": "edu.uic.kdurge2.cs478.proj1_temp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "475547164120-54j9ab8hjbjq6d3okkcsldhm2pkr8sr7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDR4YdrZqemK4onE-4D3sX6sM8vRO0kj-Y"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "475547164120-54j9ab8hjbjq6d3okkcsldhm2pkr8sr7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,52 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- The main content -->
+    <com.google.android.gms.maps.SupportMapFragment
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="edu.uic.kdurge2.cs478.proj1_temp.MapsActivity" />
+    <!-- "Loaded" flash bar layout -->
+    <FrameLayout
+        android:id="@+id/FlashBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+       >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="4"
+                android:hint="Search Location Here"
+                android:singleLine="false"
+                android:visibility="visible" />
+
+
+            <Button
+                android:id="@+id/search_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:onClick="onMapSearch"
+                android:text="Search" />
+
+        </LinearLayout>
+        <!-- flash bar content -->
+    </FrameLayout>
+    <!-- Last loaded time layout -->
+    <TextView
+        android:id="@+id/UpdateTimeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|right"
+        android:layout_marginTop="4dp"
+        android:layout_marginRight="4dp" />
+</FrameLayout>

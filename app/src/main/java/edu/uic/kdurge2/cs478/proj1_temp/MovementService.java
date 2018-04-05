@@ -273,7 +273,7 @@ public class MovementService extends Service implements SensorEventListener {
 
             long curTime = System.currentTimeMillis();
 
-                if((curTime - lastUpdate) >= 50) {
+                if((curTime - lastUpdate) >= 20) {
 
 
                 lastUpdate = curTime;
