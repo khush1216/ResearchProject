@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/dataCollect"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="Collect Data" />
+        <item
+            android:id="@+id/mapactivity"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="View on Map" />
+        <item
+            android:id="@+id/treadmillAct"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="Still Activity" />
+        <item
+            android:id="@+id/signout2"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Sign Out" />
+    </group>
+
+    <item android:title="Others">
+        <menu>
+            <item
+                android:id="@+id/profile"
+                android:icon="@drawable/ic_menu_share"
+                android:title="Profile" />
+            <item
+                android:id="@+id/Share"
+                android:icon="@drawable/ic_menu_send"
+                android:title="Share" />
+        </menu>
+    </item>
+
+</menu>
