@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         tools:context="edu.uic.kdurge2.cs478.proj1_temp.MapsActivity" />
     <!-- "Loaded" flash bar layout -->
-    <FrameLayout
+    <!--<FrameLayout
         android:id="@+id/FlashBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -40,8 +40,8 @@
                 android:text="Search" />
 
         </LinearLayout>
-        <!-- flash bar content -->
-    </FrameLayout>
+         flash bar content
+    </FrameLayout>-->
     <!-- Last loaded time layout -->
     <LinearLayout
         android:layout_width="wrap_content"
@@ -125,23 +125,28 @@
     </LinearLayout>
 
     <Button
+        android:id="@+id/startPred"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:background="@drawable/round_button"
-        android:gravity="center_vertical|center_horizontal"
         android:layout_gravity="bottom|right"
-        android:text="Stop"
         android:layout_marginBottom="10dp"
         android:layout_marginRight="10dp"
-        android:textColor="#fff" />
-    <Button
-        android:layout_width="50dp"
-        android:layout_height="50dp"
         android:background="@drawable/round_button"
         android:gravity="center_vertical|center_horizontal"
+        android:onClick="onStopPredClick"
+        android:text="Stop"
+        android:textColor="#fff" />
+
+    <Button
+        android:id="@+id/stopPred"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:layout_gravity="bottom|right"
-        android:text="Start"
         android:layout_marginBottom="70dp"
         android:layout_marginRight="10dp"
+        android:background="@drawable/round_button"
+        android:gravity="center_vertical|center_horizontal"
+        android:onClick="onStartPredClick"
+        android:text="Start"
         android:textColor="#fff" />
 </FrameLayout>

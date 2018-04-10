@@ -5,38 +5,75 @@
     android:orientation="vertical"> <!-- Horizontal Orientation set -->
 
 
-
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Welcome to Activity Recognition!"
-        android:layout_marginLeft="50dp"
+        android:layout_marginLeft="40dp"
         android:layout_marginTop="20dp"
-        android:textSize="20dp"
-        android:paddingBottom="40dp"/>
+        android:paddingBottom="40dp"
+        android:text="Welcome to Activity Recognition!"
+        android:textSize="20dp" />
+
+    <!--<Button-->
+        <!--android:id="@+id/collect"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:background="@drawable/mybutton"-->
+        <!--android:textColor="@color/white"-->
+        <!--android:onClick="startCollectActivity"-->
+        <!--android:textStyle="bold"-->
+        <!--android:text="COLLECT DATA" />-->
+
 
     <Button
         android:id="@+id/collect"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="90dp"
+        android:background="@drawable/mybutton"
         android:onClick="startCollectActivity"
-        android:text="COLLECT DATA" />
-
-    <Button
-        android:id="@+id/predict"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="startPredictionActivity"
-        android:text="PREDICT MY ACTIVITY" />
-
+        android:padding="10dp"
+        android:text="COLLECT ACTIVITY DATA"
+        android:textColor="#ffffff"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/mapView"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/mybutton"
         android:onClick="viewOnMap"
-        android:text="VIEW ON MAP" />
+        android:padding="10dp"
+        android:text="View your Activity on GoogleMap"
+        android:textColor="#ffffff"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/profile"
+        android:layout_marginLeft="150dp"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:textStyle="bold"
+        android:textColor="#ffffff"
+        android:background="@drawable/mybutton"
+        android:text="Profile" />
+
+    <Button
+        android:id="@+id/history"
+        android:layout_marginLeft="120dp"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:textStyle="bold"
+        android:textColor="#ffffff"
+        android:background="@drawable/mybutton"
+        android:text="Activity History" />
 
 
 </LinearLayout>

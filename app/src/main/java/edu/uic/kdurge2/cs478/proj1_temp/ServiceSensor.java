@@ -1,5 +1,6 @@
 package edu.uic.kdurge2.cs478.proj1_temp;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
@@ -40,6 +41,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -59,10 +61,13 @@ public class ServiceSensor extends Service implements SensorEventListener {
     private Attribute mAttribute;
     private OnSensorChangedAsyncTask mAsyncTask;
     Classifier j48Classifier;
+    private Intent mServiceIntent;
 
     public static boolean isStepAvailable;
     public static float noOfSteps = 0;
     private long lastUpdate = 0;
+
+    Intent broadcastIntent;
 
 
     //testing
@@ -86,26 +91,20 @@ public class ServiceSensor extends Service implements SensorEventListener {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        //PackageManager packageManager = getPackageManager();
+        PackageManager packageManager = getPackageManager();
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        mSensorManager.registerListener(this,mAccelerometer,SensorManager.SENSOR_DELAY_FASTEST);
 
         //add step detector
-       // mStepCounter = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+        mStepCounter = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+        mSensorManager.registerListener(this,mStepCounter,SensorManager.SENSOR_DELAY_NORMAL);
+        boolean step_exists = packageManager.hasSystemFeature(PackageManager.FEATURE_SENSOR_STEP_DETECTOR);
 
-        mSensorManager.registerListener(this,mAccelerometer,SensorManager.SENSOR_DELAY_NORMAL);
-       // mSensorManager.registerListener(this,mStepCounter,SensorManager.SENSOR_DELAY_NORMAL);
-      //  boolean step_exists = packageManager.hasSystemFeature(PackageManager.FEATURE_SENSOR_STEP_DETECTOR);
-
-       // Log.i("IS STEP AVAILABLE??","####################" + Boolean.toString(step_exists));
+        Log.i("IS STEP AVAILABLE??","####################" + Boolean.toString(step_exists));
 
         ArrayList<Attribute> allAttributes = new ArrayList<Attribute>();
-//        //DecimalFormat df = new DecimalFormat("00");
-//        ArrayList<String> labelItems = new ArrayList<String>(1);
-//        labelItems.add(Variables_Globals.CLASS_PREDICT_LABEL);
-//
-//        //mClassAttribute = new Attribute(Variables_Globals.CLASS_LABEL_KEY,labelItems);
-//
+
         ArrayList<String> classLabels = new ArrayList<String>(1);
         classLabels.add("RUN");
         classLabels.add("WALK");
@@ -184,13 +183,11 @@ public class ServiceSensor extends Service implements SensorEventListener {
             while(flag == true){
                 try{
                     if(isCancelled() == true){
-                        Log.i(Variables_Globals.TAG," in on cancelled!!!!!!!!!!!!!!!!!!!");
 
                         return null;
                     }
                     accBlock[blockSize++] = mInputBuffer.take().doubleValue();
                     if(blockSize == Variables_Globals.ACCELEROMETER_FEATURES){
-                        // Log.i(Variables_Globals.TAG, " block size enough!!!!!!!!!!!!!!!!!!!");
 
                         blockSize =0;
                         max = .0;
@@ -213,9 +210,8 @@ public class ServiceSensor extends Service implements SensorEventListener {
                         mDataInstance.add(inst);
                         double classPredicted = j48Classifier.classifyInstance(inst);
                         Log.i(Variables_Globals.TAG,"ACTIVITY RECOGNIZED!!!"+mDataInstance.classAttribute().value((int) classPredicted));
-
+                        //send this to classifier
                         publishProgress(mDataInstance.classAttribute().value((int) classPredicted));
-                        //pass instance to classifier
                     }
                     else {
                         Log.i(Variables_Globals.TAG, " block size not enough!!!!!!!!!!!!!!!!!!!");
@@ -237,7 +233,11 @@ public class ServiceSensor extends Service implements SensorEventListener {
             Log.i(Variables_Globals.TAG," in on progress!!!!!!!!!!!!!!!!!!!");
 
             String class_label = progress[0];
-            PredictionMainActivity.classLabel.setText(class_label);
+            broadcastIntent = new Intent("activity");
+            broadcastIntent.putExtra("activity",class_label);
+            LocalBroadcastManager.getInstance(ServiceSensor.this).sendBroadcast(broadcastIntent);
+
+            //PredictionMainActivity.classLabel.setText(class_label);
 
         }
 
@@ -275,11 +275,12 @@ public class ServiceSensor extends Service implements SensorEventListener {
                 }
             }
         }
-
         if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR){
 
-            Log.i("NO OF STEPS!","??????????????????"+Float.toString(event.values[0]));
-            noOfSteps = event.values[0];
+            Log.i(Variables_Globals.TAG,"??????????????????"+Float.toString(event.values[0]));
+            noOfSteps++;
+            Log.i(Variables_Globals.TAG,"COUNTING!!!"+Float.toString(noOfSteps));
+
 
         }
 
@@ -288,13 +289,8 @@ public class ServiceSensor extends Service implements SensorEventListener {
     public void readModel() {
 
         try {
-            String path  = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + "RandomForestClassifier2nd4thApril.model";
+            String path  = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + "RandomForest_fakerun_100%.model";
             j48Classifier = (Classifier) weka.core.SerializationHelper.read(path);
-
-//            ObjectInputStream ois = new ObjectInputStream(
-//                    new FileInputStream("C:/Users/Khushbu/Desktop/uic/main/M_Project/J48WekaClassifier.model"));
-//            Classifier cls = (Classifier) ois.readObject();
-//            ois.close();
         }
         catch (Exception e){
             e.printStackTrace();

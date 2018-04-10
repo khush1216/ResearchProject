@@ -2,7 +2,10 @@ package edu.uic.kdurge2.cs478.proj1_temp;
 
 import android.*;
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
@@ -12,15 +15,21 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -39,6 +48,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -50,14 +60,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
+    public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         com.google.android.gms.location.LocationListener
 
 {
 
-    private LatLng origin,destination;
+    public static LatLng origin,destination;
+
+    private Location lastLocation;
+
+    private Button start,stop;
 
     private GoogleMap mMap;
     GoogleApiClient mGoogleApiClient;
@@ -65,12 +79,54 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Location mLastLocation;
     Marker mCurrLocationMarker;
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    public static final int WRITE_PERMISSION_REQ = 1118;
+    private Intent mServiceIntent;
+    private Intent mLocationServ;
+
+    private TextView txtDist,txtSpeed,txtActivity,txtCalorie;
+    private long startTime;
+    private Handler uiLocHandler;
+    private BroadcastReceiver bReceiver;
+    private double distanceFromLocService;
+    private String activityPredicted;
+
     SupportMapFragment mapFragment;
+
+    Thread threadGetLocUpdates;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps2);
+
+        start = (Button) findViewById(R.id.startPred);
+        stop = (Button) findViewById(R.id.stopBtn);
+        txtDist = (TextView) findViewById(R.id.distance);
+        txtSpeed = (TextView) findViewById(R.id.speed);
+        txtActivity = (TextView) findViewById(R.id.activityUpdate);
+
+        mServiceIntent = new Intent(this,ServiceSensor.class);
+        mLocationServ = new Intent(this, MyLocationService.class);
+        uiLocHandler = new Handler(Looper.getMainLooper());
+
+        bReceiver = new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                if (intent.getAction().equals("distance")) {
+                    distanceFromLocService = intent.getDoubleExtra("distance", 0);
+                    lastLocation = intent.getParcelableExtra("lastLocation");
+                    updateMapDist();
+                }
+                else if (intent.getAction().equals("activity")){
+                    activityPredicted = intent.getStringExtra("activity");
+                    updateMapActivity();
+                }
+
+            }
+        };
+
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
@@ -80,6 +136,56 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
 
         mapFragment.getMapAsync(this);
+    }
+
+    private double getSpeed(double distance, long lastUpdate){
+
+        double speed = distance/(lastUpdate - startTime);
+        startTime = lastUpdate;
+        return speed;
+    }
+
+    private void updateMapActivity(){
+        txtActivity.setText(activityPredicted);
+    }
+    private void updateMapDist(){
+        txtDist.setText(Double.toString(distanceFromLocService));
+    }
+
+
+    public void onStartPredClick(View view){
+        startService(mServiceIntent);
+        threadGetLocUpdates = new Thread() {
+            @Override
+            public void run() {
+                Log.i("TAG1", "starting service on a new thread!!@@");
+
+                startService(mLocationServ);
+            }
+        };
+        threadGetLocUpdates.start();
+
+    }
+
+    public void onStopPredClick(View view){
+        Toast.makeText(this, "Pressed Stop! Your history will be saved!", Toast.LENGTH_LONG).show();
+
+        LatLng userDest = new LatLng(lastLocation.getLatitude(),lastLocation.getLongitude());
+        if(userDest != null) {
+            Log.i("TAG","I'm in on Stop seeting userDest !!@@@!!!");
+            mMap.addMarker(new MarkerOptions().position(userDest).title("Destination"));
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(userDest));
+            String url = getMapsApiDirectionsUrl(origin, userDest);
+            FetchURL fetchurl = new FetchURL();
+            fetchurl.execute(url);
+        }
+        else{
+            Toast.makeText(this, "You haven't moved :/", Toast.LENGTH_LONG).show();
+        }
+        stopService(mLocationServ);
+        stopService(mServiceIntent);
+
+
     }
 
     private String  getMapsApiDirectionsUrl(LatLng origin,LatLng dest) {
@@ -304,6 +410,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return;
             }
 
+            case WRITE_PERMISSION_REQ: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    Log.i("permission", "granted!!!");
+                } else {
+                    Toast.makeText(MapsActivity.this, "Permission denied to read your External storage", Toast.LENGTH_SHORT).show();
+                }
+            }
+
             // other 'case' lines to check for other permissions this app might request.
             //You can add here other case statements according to your requirement.
         }
@@ -319,6 +435,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         origin = latLng;
+        startTime = System.currentTimeMillis();
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
         markerOptions.title("Current Location");
@@ -366,6 +483,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+
+
     public void onMapSearch(View view) {
         EditText locationSearch = (EditText) findViewById(R.id.editText);
         String location = locationSearch.getText().toString();
@@ -401,6 +520,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED ){
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},WRITE_PERMISSION_REQ);
+
+        }
+
+        IntentFilter intentFilter =    new IntentFilter();
+        intentFilter.addAction("distance");
+        intentFilter.addAction("activity");
+        LocalBroadcastManager.getInstance(this).registerReceiver(bReceiver, intentFilter);
+
+    }
+
+
 
     @Override
     public void onConnectionSuspended(int i) {

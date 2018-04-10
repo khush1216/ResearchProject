@@ -88,10 +88,10 @@ public class MovementService extends Service implements SensorEventListener {
                 SensorManager.SENSOR_DELAY_FASTEST);
         //gyroscope
         mGyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-
+        mSensorManager.registerListener(this,mGyroscope,SensorManager.SENSOR_DELAY_NORMAL);
         //step - detector
-        mStepDetector = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-
+        mStepDetector = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+        mSensorManager.registerListener(this,mStepDetector,SensorManager.SENSOR_DELAY_NORMAL);
         Bundle extras = intent.getExtras();
         activity = extras.getString("class_label");
         userName = extras.getString("user_name");
@@ -223,6 +223,7 @@ public class MovementService extends Service implements SensorEventListener {
 
 
         if (mySensor.getType() == Sensor.TYPE_GYROSCOPE) {
+            Log.i("", "I'm in gyro");
             float x = event.values[0];
             float y = event.values[1];
             float z = event.values[2];
@@ -300,8 +301,8 @@ public class MovementService extends Service implements SensorEventListener {
             }
         }
 
-        if(mySensor.getType() == Sensor.TYPE_STEP_COUNTER) {
-           // Log.i("","####STEP COUNTER DETECTED!!");
+        if(mySensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
+            Log.i("","####STEP COUNTER DETECTED!!");
         }
 
 

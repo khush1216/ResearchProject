@@ -32,8 +32,8 @@ public class PredictionMainActivity extends AppCompatActivity {
         classLabel = (TextView) findViewById(R.id.activityID);
         startBtn = (Button) findViewById(R.id.startbtn);
         mServiceIntent = new Intent(this,ServiceSensor.class);
-        String yourFilePath = this.getFilesDir() + "/";
-        Log.i("File path","%%%%%%%%%%%%%%%%"+ yourFilePath);
+//        String yourFilePath = this.getFilesDir() + "/";
+//        Log.i("File path","%%%%%%%%%%%%%%%%"+ yourFilePath);
 
 
     }
