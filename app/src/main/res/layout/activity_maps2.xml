@@ -10,10 +10,11 @@
         android:layout_height="match_parent"
         tools:context="edu.uic.kdurge2.cs478.proj1_temp.MapsActivity" />
     <!-- "Loaded" flash bar layout -->
-    <!--<FrameLayout
+    <FrameLayout
         android:id="@+id/FlashBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="invisible"
         >
         <LinearLayout
             android:layout_width="match_parent"
@@ -41,7 +42,7 @@
 
         </LinearLayout>
          flash bar content
-    </FrameLayout>-->
+    </FrameLayout>
     <!-- Last loaded time layout -->
     <LinearLayout
         android:layout_width="wrap_content"

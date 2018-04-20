@@ -46,9 +46,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.meapsoft.SpeedCalculator;
 
 import org.json.JSONObject;
 import org.w3c.dom.Text;
+import java.util.Calendar;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -57,8 +59,13 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+
+import database.events.History;
 
     public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
@@ -70,9 +77,10 @@ import java.util.List;
     public static LatLng origin,destination;
 
     private Location lastLocation;
+    Date currentTime;
 
     private Button start,stop;
-
+    FetchURL fetchurl;
     private GoogleMap mMap;
     GoogleApiClient mGoogleApiClient;
     LocationRequest mLocationRequest;
@@ -84,13 +92,23 @@ import java.util.List;
     private Intent mLocationServ;
 
     private TextView txtDist,txtSpeed,txtActivity,txtCalorie;
-    private long startTime;
     private Handler uiLocHandler;
     private BroadcastReceiver bReceiver;
     private double distanceFromLocService;
     private String activityPredicted;
 
+
+    private History histObj;
+    private ArrayList<History> historyObjList;
+    private String latestActivity;
+    private double distance;
+    private long time1, time2;
+    private ArrayList<String> activityList;
+    private ArrayList<String> storeActivityList;
+
     SupportMapFragment mapFragment;
+    long timeAtOrigin, timeAtDestForSpeed;
+    double speedNew;
 
     Thread threadGetLocUpdates;
 
@@ -107,7 +125,14 @@ import java.util.List;
 
         mServiceIntent = new Intent(this,ServiceSensor.class);
         mLocationServ = new Intent(this, MyLocationService.class);
-        uiLocHandler = new Handler(Looper.getMainLooper());
+        activityList = new ArrayList<String>();
+        storeActivityList = new ArrayList<String>();
+        //uiLocHandler = new Handler(Looper.getMainLooper());
+
+        speedNew = 0;
+        latestActivity = "";
+
+        historyObjList = new ArrayList<History>();
 
         bReceiver = new BroadcastReceiver() {
 
@@ -117,11 +142,25 @@ import java.util.List;
                 if (intent.getAction().equals("distance")) {
                     distanceFromLocService = intent.getDoubleExtra("distance", 0);
                     lastLocation = intent.getParcelableExtra("lastLocation");
+                    timeAtDestForSpeed = System.currentTimeMillis();
+
+                    SpeedCalculator speedC = new SpeedCalculator();
+                    double dis = speedC.getDistanceFromLatLonInKm(origin.latitude,origin.longitude,lastLocation.getLatitude(),lastLocation.getLongitude());
+                    speedNew = speedC.speedCal(dis,timeAtOrigin,timeAtDestForSpeed);
+
                     updateMapDist();
                 }
                 else if (intent.getAction().equals("activity")){
                     activityPredicted = intent.getStringExtra("activity");
-                    updateMapActivity();
+                    if(activityList.size() == 5){
+                        updateMapActivity();
+                        activityList.clear();
+                        activityList = new ArrayList<String>();
+                    }
+                    else{
+                        activityList.add(activityPredicted);
+
+                    }
                 }
 
             }
@@ -138,27 +177,74 @@ import java.util.List;
         mapFragment.getMapAsync(this);
     }
 
-    private double getSpeed(double distance, long lastUpdate){
+    private void getSpeedBetweenTwoPoints(){
 
-        double speed = distance/(lastUpdate - startTime);
-        startTime = lastUpdate;
-        return speed;
+
     }
 
     private void updateMapActivity(){
-        txtActivity.setText(activityPredicted);
+        String updatedAct = getMostPredictedAct(activityList);
+        if(! latestActivity.equals(updatedAct)) {
+            if(latestActivity.equals("")){
+                txtActivity.setText(updatedAct);
+                latestActivity = updatedAct;
+            }
+            else {
+                time2 = System.currentTimeMillis();
+                long duration = time2 - time1;
+                currentTime = Calendar.getInstance().getTime();
+                histObj = new History(latestActivity,time1, currentTime.toString(),duration, 10,10,10);
+                historyObjList.add(histObj);
+                time1 = System.currentTimeMillis();
+                txtActivity.setText(updatedAct);
+                latestActivity = updatedAct;
+            }
+        }
+        else {
+            txtActivity.setText(updatedAct);
+        }
+        txtSpeed.setText(Double.toString(speedNew) + "m/s");
     }
     private void updateMapDist(){
-        txtDist.setText(Double.toString(distanceFromLocService));
+        txtDist.setText(Double.toString(distanceFromLocService) + "km");
     }
 
 
+    private String getMostPredictedAct(ArrayList<String> actList){
+
+        HashMap<String,Integer> activMap = new HashMap<String, Integer>();
+
+        for(String x : actList){
+            if(activMap.containsKey(x)){
+                int val = activMap.get(x);
+                val = val+1;
+                activMap.put(x,val);
+            }
+            else {
+                activMap.put(x,1);
+            }
+        }
+        Map.Entry<String, Integer> max = null;
+        for (Map.Entry<String, Integer> e : activMap.entrySet()) {
+            if (max == null || e.getValue() > max.getValue())
+                max = e;
+        }
+
+        return max.getKey();
+
+    }
+
     public void onStartPredClick(View view){
+
+        timeAtOrigin = System.currentTimeMillis();
+        time1 = System.currentTimeMillis();
+        txtActivity.setText("");
+        txtDist.setText("");
+        txtSpeed.setText("");
         startService(mServiceIntent);
         threadGetLocUpdates = new Thread() {
             @Override
             public void run() {
-                Log.i("TAG1", "starting service on a new thread!!@@");
 
                 startService(mLocationServ);
             }
@@ -168,22 +254,37 @@ import java.util.List;
     }
 
     public void onStopPredClick(View view){
-        Toast.makeText(this, "Pressed Stop! Your history will be saved!", Toast.LENGTH_LONG).show();
 
-        LatLng userDest = new LatLng(lastLocation.getLatitude(),lastLocation.getLongitude());
+        History setDb = new History();
+        setDb.enterHistoryToDataBase(historyObjList);
+
+        LatLng userDest = null;
+        if(lastLocation != null){
+            Toast.makeText(this, " Your history will be saved!", Toast.LENGTH_LONG).show();
+             userDest = new LatLng(lastLocation.getLatitude(),lastLocation.getLongitude());}
         if(userDest != null) {
             Log.i("TAG","I'm in on Stop seeting userDest !!@@@!!!");
             mMap.addMarker(new MarkerOptions().position(userDest).title("Destination"));
             mMap.animateCamera(CameraUpdateFactory.newLatLng(userDest));
             String url = getMapsApiDirectionsUrl(origin, userDest);
-            FetchURL fetchurl = new FetchURL();
+            fetchurl = new FetchURL();
             fetchurl.execute(url);
+
         }
         else{
             Toast.makeText(this, "You haven't moved :/", Toast.LENGTH_LONG).show();
         }
+        if(fetchurl != null){
+            fetchurl.cancel(true);}
+            else{
+            Toast.makeText(this, " Not enough time to detect activity! Start again.", Toast.LENGTH_LONG).show();
+
+        }
+
+        latestActivity = "";
         stopService(mLocationServ);
         stopService(mServiceIntent);
+
 
 
     }
@@ -232,7 +333,6 @@ import java.util.List;
         @Override
         protected void onPostExecute(String result){
             super.onPostExecute(result);
-            Log.i("#######################",result);
             ParserTask parserTask = new ParserTask();
             parserTask.execute(result);
 
@@ -364,10 +464,11 @@ import java.util.List;
             String url = getMapsApiDirectionsUrl(origin,destination);
             FetchURL fetchurl = new FetchURL();
             fetchurl.execute(url);
+            fetchurl.cancel(true);
         }
 
         else if (destination == null){
-            Toast.makeText(this, "First enter the destination!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Locating current location...", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -435,7 +536,8 @@ import java.util.List;
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         origin = latLng;
-        startTime = System.currentTimeMillis();
+        //timeAtOrigin = System.currentTimeMillis();
+
         MarkerOptions markerOptions = new MarkerOptions();
         markerOptions.position(latLng);
         markerOptions.title("Current Location");

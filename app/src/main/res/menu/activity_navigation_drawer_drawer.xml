@@ -17,6 +17,10 @@
             android:icon="@drawable/ic_menu_slideshow"
             android:title="Still Activity" />
         <item
+            android:id="@+id/historyView"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="View your History" />
+        <item
             android:id="@+id/signout2"
             android:icon="@drawable/ic_menu_manage"
             android:title="Sign Out" />

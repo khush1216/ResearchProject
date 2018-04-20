@@ -13,6 +13,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="35dp"
         android:orientation="vertical">
 
         <RelativeLayout
@@ -41,7 +42,7 @@
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:layout_marginTop="8dp"
-                android:text="Enter here..."
+                android:hint="Enter username..."
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="#727272" />
 
@@ -75,7 +76,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:text="Date of Birth"
+                android:text="Date of Birth*"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="#212121" />
 
@@ -87,7 +88,7 @@
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:layout_marginTop="8dp"
-                android:text="Enter here..."
+                android:hint="Enter dob..."
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="#727272" />
 
@@ -136,7 +137,7 @@
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:layout_marginTop="8dp"
-                android:text="Enter email id..."
+                android:hint="Enter email id..."
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="#727272" />
 
@@ -168,6 +169,107 @@
             android:padding="@dimen/activity_horizontal_margin">
 
             <TextView
+                android:id="@+id/tvNumber9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:maxLines="1"
+                android:text="Age *"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="#212121" />
+
+            <EditText
+                android:id="@+id/ageID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvNumber9"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="8dp"
+                android:hint="Enter your age..."
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="#727272" />
+
+            <ToggleButton
+                android:id="@+id/chkState9"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:background="@drawable/toggle_selector"
+                android:checked="true"
+                android:padding="6dp"
+                android:textOff=""
+                android:textOn="" />
+
+        </RelativeLayout>
+
+
+        <include layout="@layout/item_divider" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:padding="@dimen/activity_horizontal_margin">
+
+            <TextView
+                android:id="@+id/tvNumber7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:maxLines="1"
+                android:text="Weight *"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="#212121" />
+
+            <EditText
+                android:id="@+id/weightID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvNumber7"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="8dp"
+                android:hint="Enter your weight..."
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textColor="#727272" />
+
+            <ToggleButton
+                android:id="@+id/chkState7"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_marginStart="@dimen/activity_horizontal_margin"
+                android:background="@drawable/toggle_selector"
+                android:checked="true"
+                android:padding="6dp"
+                android:textOff=""
+                android:textOn="" />
+
+        </RelativeLayout>
+
+
+        <include layout="@layout/item_divider" />
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:padding="@dimen/activity_horizontal_margin">
+
+            <TextView
                 android:id="@+id/tvNumber5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -187,7 +289,7 @@
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:layout_marginTop="8dp"
-                android:text="Enter Adress here ..."
+                android:hint="Enter Adress here ..."
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="#727272" />
 
@@ -275,21 +377,22 @@
             android:padding="@dimen/activity_horizontal_margin">
 
             <Button
-                android:background="@drawable/mybutton"
                 android:id="@+id/saveDataBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/mybutton"
                 android:onClick="saveData"
                 android:text="SAVE" />
 
-            <!--<Button-->
-                <!--android:background="@drawable/mybutton"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_marginBottom="@dimen/activity_horizontal_margin"-->
-                <!--android:layout_marginTop="@dimen/activity_horizontal_margin"-->
-                <!--android:onClick="startExcerice"-->
-                <!--android:text="START EXERCISE" />-->
+            <Button
+                android:background="@drawable/mybutton"
+                android:id="@+id/historyBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/activity_horizontal_margin"
+                android:layout_marginTop="@dimen/activity_horizontal_margin"
+                android:onClick="viewHistory"
+                android:text="View History" />
 
             <!--<Button-->
                 <!--android:layout_width="wrap_content"-->

@@ -78,6 +78,7 @@ public class MainActivity extends BaseActivity {
     EditText name;
     //service intent
     Intent mServiceIntent;
+    Thread serviceThread;
 
 
     /**
@@ -99,9 +100,9 @@ public class MainActivity extends BaseActivity {
         z_axis = (TextView) findViewById(R.id.z_axis);
 
         //not using gyroscope as yet
-        x_gyro = (TextView) findViewById(R.id.x_gyro);
-        y_gyro = (TextView) findViewById(R.id.y_gyro);
-        z_gyro = (TextView) findViewById(R.id.z_gyro);
+//        x_gyro = (TextView) findViewById(R.id.x_gyro);
+//        y_gyro = (TextView) findViewById(R.id.y_gyro);
+//        z_gyro = (TextView) findViewById(R.id.z_gyro);
 
         //input user name
         name = (EditText) findViewById(R.id.name);
@@ -174,7 +175,6 @@ public class MainActivity extends BaseActivity {
 
         if(dataFile.exists()){
 
-            Log.i("TAG1","FILE FOUND!!!!##########");
 
             Uri file = Uri.fromFile(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + userName + "_training_dataSet.csv"));
            // StorageReference mUpload = mStorageRef.child(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/training_dataSet.csv");
@@ -297,7 +297,7 @@ public class MainActivity extends BaseActivity {
                 mServiceIntent.putExtras(bundle);
                // Log.i("TAG1", "starting service!############");
 
-                Thread t = new Thread() {
+                Thread serviceThread = new Thread() {
                     @Override
                     public void run() {
                         Log.i("TAG1", "starting service on a new thread!!@@");
@@ -305,7 +305,7 @@ public class MainActivity extends BaseActivity {
                         startService(mServiceIntent);
                     }
                 };
-                t.start();
+                serviceThread.start();
             }
 
 
@@ -318,11 +318,10 @@ public class MainActivity extends BaseActivity {
         uploadCloud.setEnabled(true);
 
         Toast.makeText(this, "DATA COLLECTED!", Toast.LENGTH_SHORT).show();
-
-
         start.setEnabled(true);
 
         state = State.IDLE;
+//        serviceThread.interrupt();
         stopService(mServiceIntent);
 
     }

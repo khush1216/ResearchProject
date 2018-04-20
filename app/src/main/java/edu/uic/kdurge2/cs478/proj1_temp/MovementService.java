@@ -22,6 +22,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+
+import com.peakChecker.PeakCheckerClass;
 
 import com.meapsoft.FFT;
 
@@ -34,10 +38,18 @@ public class MovementService extends Service implements SensorEventListener {
 
 
     private SensorManager mSensorManager;
+
+    private PeakCheckerClass peakChecker;
+    Thread t;
     //store initial 64 magnitudes
     private ArrayList<Float> feature64List;
     private Sensor mAccelerometer, mGyroscope, mStepDetector;
     //store max magnitude after applying low pass filter
+
+    private long timePeak1, timePeak2;
+    private ArrayList<Float> onlyFileredMag;
+    private HashMap<Float,Long> peakTimeMap;
+
     Object maxMagnitude;
     String activity;
     //store output of x,y,z readings after applying lowpassfilter
@@ -49,15 +61,18 @@ public class MovementService extends Service implements SensorEventListener {
     Handler mHandler;
 
     String userName;
-    File file;
-    FileOutputStream fos;
-    String content;
+    File file, magFile;
+    FileOutputStream fos, fosMag;
+    String content, magContent;
     //store time in milliseconds about the last update
     private long lastUpdate = 0;
 
     //low pass constant. more weightage to new values
     static final float ALPHA = 0.25f;
 
+    int no_of_peaks = 0;
+    long curTime;
+    long averagepeakTimeDiff;
     double[] x;  //real part of FFT input
     double[] im; //imaginary part of FFT input(initially passed as an array of zeroes)
 
@@ -68,7 +83,12 @@ public class MovementService extends Service implements SensorEventListener {
     public void onCreate() {
         super.onCreate();
         feature64List = new ArrayList<Float>();
+        onlyFileredMag = new ArrayList<Float>();
+        peakTimeMap = new HashMap<Float,Long>();
+
+        peakChecker = new PeakCheckerClass();
         content = "";
+        magContent = "";
 
     }
 
@@ -77,9 +97,6 @@ public class MovementService extends Service implements SensorEventListener {
 
         //checking the sensors
         PackageManager packageManager = getPackageManager();
-        //check if sensors exist
-        boolean gyroExists = packageManager.hasSystemFeature(PackageManager.FEATURE_SENSOR_GYROSCOPE);
-        boolean step_exists = packageManager.hasSystemFeature(PackageManager.FEATURE_SENSOR_STEP_COUNTER);
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
@@ -97,8 +114,10 @@ public class MovementService extends Service implements SensorEventListener {
         userName = extras.getString("user_name");
 
         file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + userName + "_training_dataSet.csv");
+        magFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + userName + "_MagnitudeDataForPeaks.csv");
         try{
             fos = new FileOutputStream(file,true);
+            //fosMag = new FileOutputStream(magFile,true);
         }
         catch (IOException e){
             e.printStackTrace();
@@ -111,6 +130,9 @@ public class MovementService extends Service implements SensorEventListener {
 
         float magnitude = (float)Math.sqrt(x*x + y*y + z*z);
         feature64List.add(magnitude);
+
+        onlyFileredMag.add(magnitude);
+        peakTimeMap.put(magnitude,curTime);
     }
 
     public void getMaxFeature(){
@@ -135,8 +157,13 @@ public class MovementService extends Service implements SensorEventListener {
         }
     }
 
+    private void convertPeakToString(ArrayList<Float> peakList){
+        for(Float peakMagnitude : peakList){
+            magContent = magContent + peakMagnitude.toString() + ",";
+        }
+    }
+
     public boolean isExternalStorageWritable() {
-       // Log.i("","I'm inside external storage!!@@@@@@@@@@");
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             return true;
@@ -180,22 +207,23 @@ public class MovementService extends Service implements SensorEventListener {
     //*********end of low pass filter*****************
 
     //**************** code for generating FFT features************************//
-    public void getFFT_Features(){
+    public void getFFT_Features(List<Float> top8Peaks){
 
 
-        FFT fft = new FFT(64);
+        FFT fft = new FFT(8);
 
-        x = new double[64];
-        im = new double[64];
-        float[] re = new float[feature64List.size()];
+        x = new double[8];
+        im = new double[8];
+        float[] re = new float[top8Peaks.size()];
         int i = 0;
 
-        for (Float f : feature64List) {
+        for (Float f : top8Peaks) {
             re[i++] = (f != null ? f : Float.NaN);
         }
 
         x = convertFloatsToDoubles(re);
         fft.fft(x,im);
+        Log.i("","");
     }
 
     //calculate maginitude from FFT values.
@@ -208,8 +236,6 @@ public class MovementService extends Service implements SensorEventListener {
            finalFFTFeature64.add(mag);
 
        }
-
-       Log.i("finalFeatureFFT","" + finalFFTFeature64);
     }
     //**************** above code for generating FFT features************************//
 
@@ -221,60 +247,62 @@ public class MovementService extends Service implements SensorEventListener {
 
         Sensor mySensor = event.sensor;
 
-
-        if (mySensor.getType() == Sensor.TYPE_GYROSCOPE) {
-            Log.i("", "I'm in gyro");
-            float x = event.values[0];
-            float y = event.values[1];
-            float z = event.values[2];
-
-
-        }
         if(mySensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
 
             //pass through low pass filter
             filterOut = lowPass(event.values.clone(), filterOut);
             //end of calling low pass filter
 
-            if(feature64List.isEmpty() || feature64List.size() == 64){
+            if(feature64List.isEmpty() || feature64List.size() == 256){
                 if(feature64List.isEmpty()){
                     feature64List = new ArrayList<Float>();
+                    //onlyFileredMag = new ArrayList<Float>();
+
                 }
 
-                else if(feature64List.size() == 64){
+                else if(feature64List.size() == 256){
 
-                    getMaxFeature();
-                    //************* *FFT functionality to be confirmed****************//
-                    getFFT_Features();
-                    getFinalFFTMagnitude();
-                    convertFFTtoString();
-                    //***********FFT functionality to be confirmed*************//
+                  ArrayList<Float> peaksFFT = new ArrayList<Float>();
+//
+                    peaksFFT = peakChecker.getPeak(feature64List);
 
-                    //initial magnitude to string
-                    //convertFeaturesToString();
 
-                    if (isExternalStorageWritable()) {
-                        try {
-                            //Log.i("TAG1", "##################now writing to the file");
-                            content = content + maxMagnitude.toString() + "," + activity + "," + userName + "\n";
-                            Log.i("Content!$$$$$$$$$","" + content);
-                            //String content = activity + "," + name.getText() + "," + Float.toString(x) + "," + Float.toString(y) + "," + Float.toString(z) +"\n";
-                            fos.write(content.getBytes());
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                    if(peaksFFT.size() > 8) {
+
+                        no_of_peaks = peaksFFT.size();
+                        averagepeakTimeDiff = peakChecker.getPeakTime(peakTimeMap,peaksFFT);
+                        List<Float> top8peaks = new ArrayList<Float>();
+                        top8peaks = peaksFFT.subList(0, 8);
+                        getMaxFeature();
+                        getFFT_Features(top8peaks);
+                        getFinalFFTMagnitude();
+                        convertFFTtoString();
+
+                        if (isExternalStorageWritable()) {
+                            try {
+                                content = content + maxMagnitude.toString() + "," + Integer.toString(no_of_peaks) + "," + Long.toString(averagepeakTimeDiff)+ "," + activity + "," + userName + "\n";
+                                fos.write(content.getBytes());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
+//
                     }
+
                     feature64List = new ArrayList<Float>();
                     maxMagnitude = 0;
                     content = "";
+                    //***********FFT functionality to be confirmed*************//
+
+
                 }
 
             }
 //******************pass the filtered output to Window buffer of size 64*************//
 
-            long curTime = System.currentTimeMillis();
+             curTime = System.currentTimeMillis();
 
-                if((curTime - lastUpdate) >= 20) {
+                if((curTime - lastUpdate) >= 10) {
 
 
                 lastUpdate = curTime;
@@ -300,12 +328,6 @@ public class MovementService extends Service implements SensorEventListener {
 
             }
         }
-
-        if(mySensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
-            Log.i("","####STEP COUNTER DETECTED!!");
-        }
-
-
     }
 
     @Override
@@ -316,6 +338,7 @@ public class MovementService extends Service implements SensorEventListener {
         mSensorManager.unregisterListener(this);
 
         try{
+            //fosMag.close();
             fos.close();
         }
         catch (Exception e){

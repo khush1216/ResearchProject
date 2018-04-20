@@ -84,7 +84,12 @@
             android:label="@string/title_activity_navigation_drawer"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".BaseActivity" />
-        <activity android:name=".UserProfile"></activity>
+        <activity
+            android:name=".UserProfile"
+            android:exported="true"></activity>
+        <activity android:name=".HistoryActivity"
+            android:exported="true">
+        </activity>
     </application>
 
 </manifest>

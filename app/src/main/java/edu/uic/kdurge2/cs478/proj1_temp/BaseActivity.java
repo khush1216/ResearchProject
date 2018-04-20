@@ -10,17 +10,25 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.data.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
+import org.w3c.dom.Text;
 
 public class BaseActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
+    TextView emailIDNav,profileNameNav;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +47,15 @@ public class BaseActivity extends AppCompatActivity {
 
         mDrawerLayout = findViewById(R.id.activity_container);
 
+
         NavigationView navigationView = findViewById(R.id.navigationView);
+        View headerView = navigationView.getHeaderView(0);
+        emailIDNav = (TextView) headerView.findViewById(R.id.emailIDnav);
+        profileNameNav = (TextView) headerView.findViewById(R.id.nameNav);
+
+        emailIDNav.setText(SignInActivity.staticUserDetailsBase[2]);
+        profileNameNav.setText(SignInActivity.staticUserDetailsBase[1]);
+
         navigationView.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
@@ -73,6 +89,17 @@ public class BaseActivity extends AppCompatActivity {
                                     });
                         }
 
+                        if(id == R.id.historyView){
+                            Intent i = new Intent(BaseActivity.this, HistoryActivity.class);
+                            startActivity(i);
+                        }
+
+                        if(id == R.id.profile){
+                            Intent i = new Intent(BaseActivity.this, UserProfile.class);
+                            i.putExtra("userdetails",SignInActivity.staticUserDetailsBase);
+                            startActivity(i);
+                        }
+
                             // close drawer when item is tapped
                         mDrawerLayout.closeDrawers();
 
@@ -88,7 +115,9 @@ public class BaseActivity extends AppCompatActivity {
         ActionBar actionbar = getSupportActionBar();
         actionbar.setDisplayHomeAsUpEnabled(true);
         actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
-        setTitle("Home Screen");
+        setTitle("ACTIVITY RECOGNITION");
+        toolbar.setTitleTextColor(0xFFFFFFFF);
+
     }
 
     @Override

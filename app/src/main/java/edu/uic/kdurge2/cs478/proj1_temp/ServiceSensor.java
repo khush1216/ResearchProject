@@ -46,7 +46,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.meapsoft.FFT;
-
+import com.meapsoft.SpeedCalculator;
 
 
 public class ServiceSensor extends Service implements SensorEventListener {
@@ -62,10 +62,18 @@ public class ServiceSensor extends Service implements SensorEventListener {
     private OnSensorChangedAsyncTask mAsyncTask;
     Classifier j48Classifier;
     private Intent mServiceIntent;
+    DecimalFormat f;
+    private ArrayList<Float> speedCalc, oldValues;
+    private boolean firstPass = false;
 
     public static boolean isStepAvailable;
     public static float noOfSteps = 0;
     private long lastUpdate = 0;
+
+
+    public static double speedFinal;
+    //public static String speedFinalString;
+    SpeedCalculator speedCal;
 
     Intent broadcastIntent;
 
@@ -86,6 +94,11 @@ public class ServiceSensor extends Service implements SensorEventListener {
         super.onCreate();
         mInputBuffer = new ArrayBlockingQueue<Double>(Variables_Globals.ACCELEROMETER_BUFFER_SIZE);
         readModel();
+        speedCal = new SpeedCalculator();
+        oldValues = new ArrayList<Float>();
+       // f = new DecimalFormat("##.##");
+//        speedFinalString = "";
+
     }
 
     @Override
@@ -214,7 +227,7 @@ public class ServiceSensor extends Service implements SensorEventListener {
                         publishProgress(mDataInstance.classAttribute().value((int) classPredicted));
                     }
                     else {
-                        Log.i(Variables_Globals.TAG, " block size not enough!!!!!!!!!!!!!!!!!!!");
+                        //Log.i(Variables_Globals.TAG, " block size not enough!!!!!!!!!!!!!!!!!!!");
                     }
 
                 }
@@ -259,6 +272,34 @@ public class ServiceSensor extends Service implements SensorEventListener {
             long curTime = System.currentTimeMillis();
 
             if((curTime - lastUpdate) >= 20) {
+                float a = event.values[0];
+                float b = event.values[1];
+                float c = event.values[2];
+
+                long interval = curTime - lastUpdate;
+
+                //speedFinal = speedCal.calculateVelocity(a,b,c,interval,firstPass);
+
+
+//                if(oldValues.isEmpty()){
+//                    firstPass = true;
+//                    //pass to speed calc
+//                    speedFinal = speedCal.calculateVelocity(a,b,c,oldValues,interval,firstPass);
+//                    oldValues.add(event.values[0]);
+//                    oldValues.add(event.values[1]);
+//                    oldValues.add(event.values[2]);
+//                }
+//                else {
+//                    firstPass = false;
+//
+//                    speedFinal = speedCal.calculateVelocity(a,b,c,oldValues,interval,firstPass);
+//                    oldValues.clear();
+//                    oldValues = new ArrayList<Float>();
+//                    oldValues.add(event.values[0]);
+//                    oldValues.add(event.values[1]);
+//                    oldValues.add(event.values[2]);
+//                }
+
 
                 lastUpdate = curTime;
                 filterOut = lowPass(event.values.clone(), filterOut);
@@ -275,14 +316,14 @@ public class ServiceSensor extends Service implements SensorEventListener {
                 }
             }
         }
-        if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR){
-
-            Log.i(Variables_Globals.TAG,"??????????????????"+Float.toString(event.values[0]));
-            noOfSteps++;
-            Log.i(Variables_Globals.TAG,"COUNTING!!!"+Float.toString(noOfSteps));
-
-
-        }
+//        if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR){
+//
+//            Log.i(Variables_Globals.TAG,"??????????????????"+Float.toString(event.values[0]));
+//            noOfSteps++;
+//            Log.i(Variables_Globals.TAG,"COUNTING!!!"+Float.toString(noOfSteps));
+//
+//
+//        }
 
     }
 
@@ -308,7 +349,9 @@ public class ServiceSensor extends Service implements SensorEventListener {
         Log.v("SERVICE","Service killed");
 
         super.onDestroy();
+        mAsyncTask.cancel(true);
         mSensorManager.unregisterListener(this);
+
 
     }
     @Override

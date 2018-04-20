@@ -15,16 +15,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="ENTER USER NAME..." />
 
 
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="8"
+            android:textColor="@color/colorPrimary"
+            android:hint="Enter user name..."
             android:id="@+id/name"
             android:inputType="textPersonName"
             android:text="" />
@@ -35,12 +33,15 @@
         android:id="@+id/startBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="onStartClick"
+            android:background="@drawable/mybutton"
+            android:onClick="onStartClick"
         android:text="START" />
 
 
     <Button
         android:id="@+id/stopBtn"
+        android:layout_marginLeft="20dp"
+        android:background="@drawable/mybutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="onStopClick"
@@ -57,7 +58,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
+            android:textColor="@color/colorPrimaryDark"
             android:text="ACCELEROMETER DATA"
+            android:paddingLeft="70dp"
             android:textSize="20dp" />
 
 
@@ -81,6 +84,7 @@
             android:textSize="16dp"
             android:layout_weight="1"
             android:textStyle="bold"
+            android:textColor="@color/colorPrimaryDark"
             android:text="X AXIS" />
 
         <TextView
@@ -88,14 +92,15 @@
             android:textSize="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimary"
             android:paddingLeft="50dp" />
 
-        <TextView
-            android:id="@+id/x_gyro"
-            android:textSize="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="100dp" />
+        <!--<TextView-->
+            <!--android:id="@+id/x_gyro"-->
+            <!--android:textSize="16dp"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:paddingLeft="100dp" />-->
     </LinearLayout>
 
     <LinearLayout
@@ -112,6 +117,7 @@
             android:textSize="16dp"
             android:layout_weight="1"
             android:textStyle="bold"
+            android:textColor="@color/colorPrimaryDark"
             android:text="Y_AXIS" />
 
         <TextView
@@ -119,14 +125,15 @@
             android:textSize="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimary"
             android:paddingLeft="50dp" />
 
-        <TextView
-            android:id="@+id/y_gyro"
-            android:textSize="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="100dp" />
+        <!--<TextView-->
+            <!--android:id="@+id/y_gyro"-->
+            <!--android:textSize="16dp"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:paddingLeft="100dp" />-->
     </LinearLayout>
 
     <LinearLayout
@@ -141,6 +148,7 @@
             android:textSize="16dp"
             android:layout_weight="1"
             android:textStyle="bold"
+            android:textColor="@color/colorPrimaryDark"
             android:text="Z_AXIS" />
 
         <TextView
@@ -148,14 +156,15 @@
             android:textSize="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimary"
             android:paddingLeft="50dp" />
 
-        <TextView
-            android:id="@+id/z_gyro"
-            android:textSize="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="100dp" />
+        <!--<TextView-->
+            <!--android:id="@+id/z_gyro"-->
+            <!--android:textSize="16dp"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:paddingLeft="100dp" />-->
     </LinearLayout>
 
     <LinearLayout
@@ -166,6 +175,7 @@
     <TextView
         android:id="@+id/activity"
         android:textSize="20dp"
+        android:textColor="@color/colorPrimaryDark"
         android:text="SELECT ACTIVITY"
         android:textStyle="bold"
         android:layout_width="match_parent"
@@ -181,6 +191,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="onRadioButtonClicked"
+        android:textColor="@color/colorPrimaryDark"
         android:textStyle="bold"
         android:text="WALKING" />
 
@@ -189,6 +200,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textStyle="bold"
+        android:textColor="@color/colorPrimaryDark"
         android:onClick="onRadioButtonClicked"
         android:text="RUNNING" />
 
@@ -198,6 +210,7 @@
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
                 android:onClick="onRadioButtonClicked"
+                android:textColor="@color/colorPrimaryDark"
                 android:text="CYCLING" />
 
             <RadioButton
@@ -206,6 +219,7 @@
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
                 android:onClick="onRadioButtonClicked"
+                android:textColor="@color/colorPrimaryDark"
                 android:text="SITTING" />
         </RadioGroup>
 
@@ -216,6 +230,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:orientation="horizontal">
 
         <Button
@@ -223,14 +238,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="deleteData"
-            android:text="DELETE DATA" />
+            android:background="@drawable/mybutton"
+            android:text="DELETE" />
 
         <Button
             android:id="@+id/uploadData"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:background="@drawable/mybutton"
             android:onClick="uploadToCloud"
-            android:text="UPLOAD TO CLOUD" />
+            android:text="UPLOAD" />
 
     </LinearLayout>
 
