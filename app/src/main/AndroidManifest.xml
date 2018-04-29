@@ -37,11 +37,6 @@
         <service android:name=".MovementService" />
 
         <activity android:name=".SignInActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".SelectAppState"
@@ -89,12 +84,22 @@
             android:exported="true" />
         <activity
             android:name=".HistoryActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
 
         <service
             android:name=".ServiceSensorPeaks"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity android:name=".SpashScreenActivity"
+            android:theme="@style/SplashTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
     </application>
 
 </manifest>

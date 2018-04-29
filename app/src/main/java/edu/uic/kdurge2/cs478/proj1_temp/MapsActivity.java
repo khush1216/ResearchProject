@@ -95,7 +95,7 @@ import database.events.History;
 
     boolean isServiceRunning;
 
-    private Button start,stop;
+    private Button startServ,stopServ;
     FetchURL fetchurl;
     private GoogleMap mMap;
     GoogleApiClient mGoogleApiClient;
@@ -137,8 +137,9 @@ import database.events.History;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps2);
 
-        start = (Button) findViewById(R.id.startPred);
-        stop = (Button) findViewById(R.id.stopBtn);
+        startServ = (Button) findViewById(R.id.startPred);
+        stopServ = (Button) findViewById(R.id.stopBtn);
+
         txtDist = (TextView) findViewById(R.id.distance);
         txtSpeed = (TextView) findViewById(R.id.speed);
         txtActivity = (TextView) findViewById(R.id.activityUpdate);
@@ -151,8 +152,8 @@ import database.events.History;
         activityList = new ArrayList<String>();
         storeActivityList = new ArrayList<String>();
 
-        double p1 = Double.parseDouble(UserProfile.userProfileDetails.get("weight"));
-        double p2 = Double.parseDouble(UserProfile.userProfileDetails.get("age"));
+        //double p1 = Double.parseDouble(UserProfile.userProfileDetails.get("weight"));
+        //double p2 = Double.parseDouble(UserProfile.userProfileDetails.get("age"));
         String s1 = UserProfile.userProfileDetails.get("gender");
         calLostObj = new CaloriesLostClass(Double.parseDouble(UserProfile.userProfileDetails.get("weight")),Double.parseDouble(UserProfile.userProfileDetails.get("age")),UserProfile.userProfileDetails.get("gender"));
 
@@ -204,6 +205,17 @@ import database.events.History;
                 .findFragmentById(R.id.map);
 
         mapFragment.getMapAsync(this);
+    }
+
+    private void storeLastEntry(){
+
+        String lastActivity = txtActivity.getText().toString();
+        time2 = System.currentTimeMillis();
+        long duration = time2 - time1;
+        currentTime = Calendar.getInstance().getTime();
+        histObj = new History(latestActivity,time1, currentTime.toString(),duration, speedNew,distanceFromLocService,0);
+        historyObjList.add(histObj);
+        //latestActivity = updatedAct;
     }
 
     private void updateMapActivity(){
@@ -279,11 +291,15 @@ import database.events.History;
         };
         threadGetLocUpdates.start();
 
+
+
     }
 
     public void onStopPredClick(View view){
 
         History setDb = new History();
+        //TODO : save last entry
+        storeLastEntry();
         setDb.enterHistoryToDataBase(historyObjList);
 
         LatLng userDest = null;
@@ -310,6 +326,9 @@ import database.events.History;
         }
 
         latestActivity = "";
+        time1=0;
+        time2=0;
+        timeAtOrigin = 0;
         stopService(mLocationServ);
         stopService(mServiceIntent);
         isServiceRunning = false;

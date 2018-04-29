@@ -8,6 +8,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -157,6 +160,53 @@ public class UserProfile extends BaseActivity {
         Intent histInt = new Intent(this, HistoryActivity.class);
         startActivity(histInt);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.signOut:
+                AuthUI.getInstance()
+                        .signOut(this)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            public void onComplete(@NonNull Task<Void> task) {
+                                // user is now signed out
+                                startActivity(new Intent(UserProfile.this, SignInActivity.class));
+                                finish();
+                            }
+                        });
+                return true;
+            case R.id.deleteAcc:
+
+                DatabaseReference deleteRef = mDatabase.child(userDetails[0]);
+                deleteRef.getRef().removeValue();
+                Toast.makeText(this, "Deleting your data...", Toast.LENGTH_SHORT).show();
+                AuthUI.getInstance()
+                        .delete(this)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                startActivity(new Intent(UserProfile.this, SignInActivity.class));
+                                finish();
+                            }
+                        });
+                Toast.makeText(this, "Account deleted successfully.", Toast.LENGTH_SHORT).show();
+
+                return true;
+            case R.id.help:
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 
     private void updateProfile(){
 

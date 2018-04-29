@@ -27,7 +27,9 @@ import com.google.firebase.database.ValueEventListener;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import database.events.History;
 
@@ -42,7 +44,7 @@ public class HistoryActivity extends BaseActivity {
     ArrayList<DataSnapshot> dataObject;
 
     private String activityDateTextV;
-    private ArrayList<String> activityDateList;
+    private Map<Integer,String> activityDateList;
 
     MyAdapter adapter;
 
@@ -51,7 +53,7 @@ public class HistoryActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_history);
-        activityDateList = new ArrayList<String>();
+        activityDateList = new HashMap<Integer,String>();
 
         listView = (ListView) findViewById(R.id.listviewHist);
         getHistoryFromDB(getApplicationContext());
@@ -148,13 +150,13 @@ public class HistoryActivity extends BaseActivity {
            TextView calorie = (TextView) rowView.findViewById(R.id.calorieDB);
 
            activityDate.setText("ACTIVITY DATE:" + dataSnapshotArrayList.get(position).child("datetime").getValue());
-           activityDateList.add(dataSnapshotArrayList.get(position).child("datetime").getValue().toString());
+           activityDateList.put(position,dataSnapshotArrayList.get(position).child("datetime").getValue().toString());
 
            //Log.i("ACTIVITY DATE LIST",activityDateList.toString());
 
            activity.setText("ACTIVITY TYPE:" + dataSnapshotArrayList.get(position).child("activity").getValue());
            distance.setText("DISTANCE :" + dataSnapshotArrayList.get(position).child("distance").getValue() + " kms");
-           speed.setText("SPEED:" + dataSnapshotArrayList.get(position).child("speed").getValue() + " m/s");
+           speed.setText("SPEED:" + dataSnapshotArrayList.get(position).child("averageSpeed").getValue() + " m/s");
            calorie.setText("CALORIES LOST:" + dataSnapshotArrayList.get(position).child("calorieslost").getValue() + "cal");
 
            return rowView;

@@ -7,17 +7,24 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.meapsoft.SpeedCalculator;
 
 import org.w3c.dom.Text;
@@ -28,7 +35,7 @@ import java.util.ArrayList;
 //tests on different cases. First case is without considering peaks and time between peaks.
 //the second case is still incomplete prediction. The accuracy obtained by the logistic regression classifier
 //is about 86%.
-public class PredictionMainActivity extends AppCompatActivity {
+public class PredictionMainActivity extends BaseActivity {
 
     public TextView classLabel;
     private Button startBtn;
@@ -70,6 +77,48 @@ public class PredictionMainActivity extends AppCompatActivity {
         };
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.signOut:
+                AuthUI.getInstance()
+                        .signOut(this)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            public void onComplete(@NonNull Task<Void> task) {
+                                // user is now signed out
+                                startActivity(new Intent(PredictionMainActivity.this, SignInActivity.class));
+                                finish();
+                            }
+                        });
+                return true;
+            case R.id.deleteAcc:
+                AuthUI.getInstance()
+                        .delete(this)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                startActivity(new Intent(PredictionMainActivity.this, SignInActivity.class));
+                                finish();
+                                // ...
+                            }
+                        });
+                return true;
+            case R.id.help:
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 
     @Override
     protected void onResume() {
