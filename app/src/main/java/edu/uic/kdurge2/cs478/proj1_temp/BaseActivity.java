@@ -24,6 +24,8 @@ import com.google.android.gms.tasks.Task;
 
 import org.w3c.dom.Text;
 
+
+//this class is extended by all activities to implement the side menu.
 public class BaseActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
@@ -32,7 +34,6 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       // setContentView(R.layout.activity_base);
 
 
     }
@@ -74,6 +75,11 @@ public class BaseActivity extends AppCompatActivity {
 
                         if (id == R.id.mapactivity) {
                             Intent i = new Intent(BaseActivity.this,MapsActivity.class);
+                            startActivity(i);
+                        }
+
+                        if(id == R.id.treadmillAct){
+                            Intent i = new Intent(BaseActivity.this,PredictionMainActivity.class);
                             startActivity(i);
                         }
 

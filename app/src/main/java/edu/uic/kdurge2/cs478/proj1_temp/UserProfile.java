@@ -29,6 +29,7 @@ import database.events.ProfileClass;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class UserProfile extends BaseActivity {
@@ -36,7 +37,7 @@ public class UserProfile extends BaseActivity {
     private String userDetails[];
     private boolean dataExists=false;
 
-    private HashMap<String,String> userProfileDetails;
+    public static HashMap<String,String> userProfileDetails;
 
     EditText  address, dob, age, weight;
     String uID;
@@ -74,27 +75,23 @@ public class UserProfile extends BaseActivity {
         email_id.setText(userDetails[2]);
         userHeading.setText(userDetails[1]);
 
-        //set in navigation
-//        email_nav.setText(userDetails[2]);
-  //      name_nav.setText(userDetails[1]);
-
-       // userHeading.setEnabled(false);
         username.setText(userDetails[1]);
-        //username.setEnabled(false);
         mDatabase.child(userDetails[0]).child("email").setValue(userDetails[2]);
         mDatabase.child(userDetails[0]).child("username").setValue(userDetails[1]);
 
 
         mUserDatabaseRef = mDatabase.child(userDetails[0]);
+        userProfileDetails = new HashMap<String, String>();
+
         updateProfile();
 
         FloatingActionButton fab = findViewById(R.id.fab);
+
+        //for editing the content
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                //userHeading.setEnabled(true);
-                //username.setEnabled(true);
                 address.setEnabled(true);
                 dob.setEnabled(true);
                 age.setEnabled(true);
@@ -105,14 +102,24 @@ public class UserProfile extends BaseActivity {
         });
     }
 
+    public void onRadioButtonClicked(View view){
+        boolean checked = ((RadioButton) view).isChecked();
+
+        switch (view.getId()){
+            case R.id.female:
+                genderStr = "female";
+                break;
+
+            case R.id.male:
+                genderStr = "male";
+                break;
+
+        }
+    }
     public void saveData(View view){
-        // userHeading.setEnabled(false);
-        //username.setEnabled(false);
         if(TextUtils.isEmpty(age.getText()) || TextUtils.isEmpty(dob.getText()) || TextUtils.isEmpty(weight.getText())){
 
             Toast.makeText(this, "Complete Mandatory fields!", Toast.LENGTH_SHORT).show();
-
-
         }
 
         else {
@@ -122,7 +129,6 @@ public class UserProfile extends BaseActivity {
             weight.setEnabled(false);
 
             ProfileClass profileData = new ProfileClass();
-            userProfileDetails = new HashMap<String, String>();
 
             addressStr = address.getText().toString();
             dateofbirth = dob.getText().toString();
@@ -138,7 +144,6 @@ public class UserProfile extends BaseActivity {
             userProfileDetails.put("lastname", lastname);
             userProfileDetails.put("gender", genderStr);
             userProfileDetails.put("weight",weightStr);
-            //userProfileDetails.put("email",email_idStr);
             userProfileDetails.put("dob", dateofbirth);
             userProfileDetails.put("age", ageStr);
             userProfileDetails.put("address", addressStr);
@@ -166,6 +171,8 @@ public class UserProfile extends BaseActivity {
                         address.setText(addressStr);
                         address.setEnabled(false);
                         dataExists = true;
+                        userProfileDetails.put("address",addressStr);
+
                     } else {
                         Log.i("","");
                     }
@@ -173,13 +180,14 @@ public class UserProfile extends BaseActivity {
                         dateofbirth = data.child("dateofbirth").getValue().toString();
                         dob.setText(dateofbirth);
                         dob.setEnabled(false);
+
+                        userProfileDetails.put("dob",dateofbirth);
                     } else {
-                        Log.i("TAG", "Should not come here!!!");
                     }
                     if (data.child("email").exists()) {
                         email_idStr = data.child("email").getValue().toString();
+
                     } else {
-                        Log.i("TAG", "Should not come here!!!");
                     }
 
                         if (data.child("age").exists()) {
@@ -187,8 +195,9 @@ public class UserProfile extends BaseActivity {
                             age.setText(ageStr);
                             age.setEnabled(false);
 
+                            userProfileDetails.put("age",ageStr);
+
                         } else {
-                            Log.i("TAG", "Should not come here!!!");
                         }
 
                         if (data.child("weight").exists()) {
@@ -196,8 +205,8 @@ public class UserProfile extends BaseActivity {
                             weight.setText(weightStr);
                             weight.setEnabled(false);
 
+                            userProfileDetails.put("weight",weightStr);
                         } else {
-                            Log.i("TAG", "Should not come here!!!");
                         }
                     if (data.child("gender").exists()) {
                         genderStr = data.child("gender").getValue().toString();
@@ -207,6 +216,7 @@ public class UserProfile extends BaseActivity {
                         else if (genderStr.equals("male")){
                             genderM.setChecked(true);
                         }
+                        userProfileDetails.put("gender",genderStr);
 
                     } else {
 
@@ -214,6 +224,7 @@ public class UserProfile extends BaseActivity {
 
                     if (data.child("lastname").exists()) {
                         lastname = data.child("lastname").getValue().toString();
+                        userProfileDetails.put("lastname",lastname);
 
                     } else {
 
@@ -221,13 +232,15 @@ public class UserProfile extends BaseActivity {
                     if (data.child("username").exists()) {
                         userHeadingStr = data.child("username").getValue().toString();
                         username.setText(userDetails[1]);
+
+                        userProfileDetails.put("username",userHeadingStr);
                     } else {
 
                     }
                 }
                 }
             }
-                        @Override
+            @Override
             public void onCancelled(DatabaseError firebaseError) {
                 Log.i("ERROR!!","Could not retreive your data for some unknown error!");
                 Log.i("ERROR",firebaseError.getMessage());
@@ -239,6 +252,7 @@ public class UserProfile extends BaseActivity {
     @Override
     public void onBackPressed()
     {
+        //sign out on back pressed
         AuthUI.getInstance()
                 .signOut(this)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {

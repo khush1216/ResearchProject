@@ -17,6 +17,8 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.math.BigDecimal;
+
 public class MyLocationService extends Service
 {
     private static final String TAG = "LOCSERVICE";
@@ -35,6 +37,31 @@ public class MyLocationService extends Service
     private class LocationListener implements android.location.LocationListener
     {
         Location mLastLocation;
+
+        //delete from here
+        public double distanceHaversine(double startLat, double startLong,
+                                      double endLat, double endLong) {
+
+            int EARTH_RADIUS = 6371;
+            double dLat  = Math.toRadians((endLat - startLat));
+            double dLong = Math.toRadians((endLong - startLong));
+
+            startLat = Math.toRadians(startLat);
+            endLat   = Math.toRadians(endLat);
+
+            double a = haversin(dLat) + Math.cos(startLat) * Math.cos(endLat) * haversin(dLong);
+            double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            double res= EARTH_RADIUS * c;
+            BigDecimal big = new BigDecimal(res);
+            double roundRes = big.setScale(4,BigDecimal.ROUND_UP).doubleValue();
+            return roundRes;
+        }
+
+        public double haversin(double val) {
+            return Math.pow(Math.sin(val / 2), 2);
+        }
+        //delte till here
 
         public double getDistanceFromLatLonInKm(double lat1, double lon1, double lat2, double lon2)
         {
@@ -67,19 +94,8 @@ public class MyLocationService extends Service
             Log.e(TAG, "onLocationChanged: " + location);
             mLastLocation.set(location);
 
-//            if(lastLatLong == null) {
-//               newDist = getDistanceFromLatLonInKm(MapsActivity.origin.latitude, MapsActivity.origin.longitude, mLastLocation.getLatitude(), mLastLocation.getLongitude());
-//               prevDist = newDist;
-//               lastLatLong = location;
-//            }
-//            else {
-//                newDist = getDistanceFromLatLonInKm(lastLatLong.getLatitude(), lastLatLong.getLongitude(), mLastLocation.getLatitude(), mLastLocation.getLongitude());
-//                newDist = newDist + prevDist;
-//                newDist = (double)Math.round(newDist * 10000d) / 10000d;
-//                lastLatLong = location;
-//            }
+            newDist = distanceHaversine(MapsActivity.origin.latitude, MapsActivity.origin.longitude, mLastLocation.getLatitude(), mLastLocation.getLongitude());
 
-            newDist = getDistanceFromLatLonInKm(MapsActivity.origin.latitude, MapsActivity.origin.longitude, mLastLocation.getLatitude(), mLastLocation.getLongitude());
             lastLatLong = location;
 
             broadcastIntent = new Intent("distance");

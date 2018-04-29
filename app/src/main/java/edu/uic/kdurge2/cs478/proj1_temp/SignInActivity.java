@@ -57,7 +57,6 @@ public class SignInActivity extends AppCompatActivity {
             cm  = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo ni = cm.getActiveNetworkInfo();
         if(ni == null){
-            //Toast.makeText(this, "Connect to Internet", Toast.LENGTH_SHORT).show();
             return false;
 
         }
@@ -76,8 +75,6 @@ public class SignInActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-//                mDatabase = FirebaseDatabase.getInstance().getReference();
-//                mDatabase.child("users").child(user.toString()).child("emailid").setValue(user.getEmail());
                 userDetails = new String[3];
                 staticUserDetailsBase = new String[3];
                 userDetails[0] = user.getUid();

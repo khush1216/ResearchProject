@@ -5,6 +5,7 @@ import android.widget.ArrayAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Khushbu on 4/10/2018.
@@ -74,6 +75,21 @@ public class PeakCheckerClass {
 
         ArrayList<Long> timeList = new ArrayList<Long>();
         for(Float x : peakList){
+            timeList.add(peakTimeMap.get(x));
+        }
+
+        Long averageTimeDiff = getDifference(timeList);
+        Log.i("DIFFERENCE", averageTimeDiff.toString());
+
+        return averageTimeDiff;
+    }
+
+    public Long getPeakTimeConcurrent(Map<Double,Long> peakTimeMap, ArrayList<Double> peakList){
+
+        ArrayList<Double> magnitudeList = new ArrayList<>(peakTimeMap.keySet());
+
+        ArrayList<Long> timeList = new ArrayList<Long>();
+        for(double x : peakList){
             timeList.add(peakTimeMap.get(x));
         }
 

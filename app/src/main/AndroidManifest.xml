@@ -86,10 +86,15 @@
         <activity android:name=".BaseActivity" />
         <activity
             android:name=".UserProfile"
+            android:exported="true" />
+        <activity
+            android:name=".HistoryActivity"
             android:exported="true"></activity>
-        <activity android:name=".HistoryActivity"
-            android:exported="true">
-        </activity>
+
+        <service
+            android:name=".ServiceSensorPeaks"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

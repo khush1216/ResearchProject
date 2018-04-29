@@ -21,6 +21,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+
+//activity created for testing.
 public class SelectAppState extends BaseActivity {
 
 

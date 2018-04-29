@@ -373,19 +373,6 @@ public class MainActivity extends BaseActivity {
     protected void onPause() {
         super.onPause();
         Log.i("","in on pause");
-        // mSensorManager.unregisterListener(this);
-//        try{
-//            fos.close();
-//        }
-//        catch (Exception e){
-//            e.printStackTrace();
-//        }
-//        if (writer != null) {
-//            try {
-//                writer.close();
-//            } catch (Exception e) {
-//            }
-//        }
 
     }
 }

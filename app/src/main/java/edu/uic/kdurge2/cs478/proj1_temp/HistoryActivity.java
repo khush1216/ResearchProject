@@ -31,6 +31,10 @@ import java.util.List;
 
 import database.events.History;
 
+
+//This activity maintains the history.
+//retreives data from firebase and displays
+
 public class HistoryActivity extends BaseActivity {
 
     ListView listView;
@@ -141,7 +145,7 @@ public class HistoryActivity extends BaseActivity {
            TextView activity = (TextView) rowView.findViewById(R.id.activityDB);
            TextView distance = (TextView) rowView.findViewById(R.id.distanceDB);
            TextView speed = (TextView) rowView.findViewById(R.id.speedDB);
-           TextView calorie = (TextView) rowView.findViewById(R.id.calorie);
+           TextView calorie = (TextView) rowView.findViewById(R.id.calorieDB);
 
            activityDate.setText("ACTIVITY DATE:" + dataSnapshotArrayList.get(position).child("datetime").getValue());
            activityDateList.add(dataSnapshotArrayList.get(position).child("datetime").getValue().toString());
@@ -149,9 +153,9 @@ public class HistoryActivity extends BaseActivity {
            //Log.i("ACTIVITY DATE LIST",activityDateList.toString());
 
            activity.setText("ACTIVITY TYPE:" + dataSnapshotArrayList.get(position).child("activity").getValue());
-           distance.setText("DISTANCE :" + dataSnapshotArrayList.get(position).child("distance").getValue());
-           speed.setText("SPEED:" + dataSnapshotArrayList.get(position).child("speed").getValue());
-           speed.setText("CALORIE TYPE:" + dataSnapshotArrayList.get(position).child("calorieslost").getValue());
+           distance.setText("DISTANCE :" + dataSnapshotArrayList.get(position).child("distance").getValue() + " kms");
+           speed.setText("SPEED:" + dataSnapshotArrayList.get(position).child("speed").getValue() + " m/s");
+           calorie.setText("CALORIES LOST:" + dataSnapshotArrayList.get(position).child("calorieslost").getValue() + "cal");
 
            return rowView;
        }

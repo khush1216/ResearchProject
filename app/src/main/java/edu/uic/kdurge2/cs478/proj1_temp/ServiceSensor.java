@@ -71,22 +71,17 @@ public class ServiceSensor extends Service implements SensorEventListener {
     private long lastUpdate = 0;
 
 
-    public static double speedFinal;
-    //public static String speedFinalString;
+    //public static double speedFinal;
     SpeedCalculator speedCal;
+    boolean mapServiceFlag = true;
 
     Intent broadcastIntent;
-
-
-    //testing
-
     private float[] filterOut;
 
 
     private static final float ALPHA = 0.25f;
 
 
-    //async
     private static ArrayBlockingQueue<Double> mInputBuffer;
 
     @Override
@@ -96,9 +91,6 @@ public class ServiceSensor extends Service implements SensorEventListener {
         readModel();
         speedCal = new SpeedCalculator();
         oldValues = new ArrayList<Float>();
-       // f = new DecimalFormat("##.##");
-//        speedFinalString = "";
-
     }
 
     @Override
@@ -106,6 +98,8 @@ public class ServiceSensor extends Service implements SensorEventListener {
 
         PackageManager packageManager = getPackageManager();
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+        //add accelerometer
         mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         mSensorManager.registerListener(this,mAccelerometer,SensorManager.SENSOR_DELAY_FASTEST);
 
@@ -114,7 +108,15 @@ public class ServiceSensor extends Service implements SensorEventListener {
         mSensorManager.registerListener(this,mStepCounter,SensorManager.SENSOR_DELAY_NORMAL);
         boolean step_exists = packageManager.hasSystemFeature(PackageManager.FEATURE_SENSOR_STEP_DETECTOR);
 
-        Log.i("IS STEP AVAILABLE??","####################" + Boolean.toString(step_exists));
+        String activityName = intent.getStringExtra("callingActivityName");
+
+        if(activityName.equals("MapsActivity")){
+            mapServiceFlag = true;
+        }
+        if(activityName.equals("StillActivity")){
+            mapServiceFlag = false;
+        }
+
 
         ArrayList<Attribute> allAttributes = new ArrayList<Attribute>();
 
@@ -123,19 +125,22 @@ public class ServiceSensor extends Service implements SensorEventListener {
         classLabels.add("WALK");
         classLabels.add("SIT");
 
+        //add class attribute to instance
         mClassAttribute = new Attribute(Variables_Globals.CLASS_LABEL_KEY,classLabels);
 
-
-
+        //add headings / column names to all features
         for(int i=1;i<=Variables_Globals.ACCELEROMETER_FEATURES; i++){
             allAttributes.add(new Attribute(Variables_Globals.FFT_VARIABLE + Integer.toString(i)));
         }
+        //add column for max magnitude
         allAttributes.add(new Attribute(Variables_Globals.MAX_MAGNITUDE));
+        // column for class label
         allAttributes.add(mClassAttribute);
 
         mDataInstance = new Instances(Variables_Globals.FEATURE_SET_NAME,allAttributes,Variables_Globals.FEATURE_SET_CAPACITY);
         mDataInstance.setClassIndex(mDataInstance.numAttributes() - 1);
 
+        //begin on a background thread. Since async task is used, the view is frozen to portrait mode
         mAsyncTask = new OnSensorChangedAsyncTask();
         mAsyncTask.execute();
 
@@ -143,6 +148,7 @@ public class ServiceSensor extends Service implements SensorEventListener {
 
     }
 
+    //LOW PASS FILTER TO SMOOTHEN THE RAW READINGS
     protected float[] lowPass(float[] input, float output[]){
 
         if(output == null)return input;
@@ -219,15 +225,18 @@ public class ServiceSensor extends Service implements SensorEventListener {
                         }
 
                         inst.setValue(Variables_Globals.ACCELEROMETER_FEATURES,max);
-                        //inst.setValue(mClassAttribute,Variables_Globals.CLASS_PREDICT_LABEL);
+
+                        //one instance of data has been generated.
                         mDataInstance.add(inst);
+
+                        //send this instance to classifier. Used - j48 decision trees, Random forests, logistic regression, etc.
+                        //current uses Random Forests
                         double classPredicted = j48Classifier.classifyInstance(inst);
                         Log.i(Variables_Globals.TAG,"ACTIVITY RECOGNIZED!!!"+mDataInstance.classAttribute().value((int) classPredicted));
-                        //send this to classifier
                         publishProgress(mDataInstance.classAttribute().value((int) classPredicted));
                     }
                     else {
-                        //Log.i(Variables_Globals.TAG, " block size not enough!!!!!!!!!!!!!!!!!!!");
+                        //continue
                     }
 
                 }
@@ -241,16 +250,13 @@ public class ServiceSensor extends Service implements SensorEventListener {
             return null;
         }
 
+        //send predicted broadcast to activities to display
         protected void onProgressUpdate(String... progress){
-
-            Log.i(Variables_Globals.TAG," in on progress!!!!!!!!!!!!!!!!!!!");
 
             String class_label = progress[0];
             broadcastIntent = new Intent("activity");
             broadcastIntent.putExtra("activity",class_label);
             LocalBroadcastManager.getInstance(ServiceSensor.this).sendBroadcast(broadcastIntent);
-
-            //PredictionMainActivity.classLabel.setText(class_label);
 
         }
 
@@ -278,28 +284,6 @@ public class ServiceSensor extends Service implements SensorEventListener {
 
                 long interval = curTime - lastUpdate;
 
-                //speedFinal = speedCal.calculateVelocity(a,b,c,interval,firstPass);
-
-
-//                if(oldValues.isEmpty()){
-//                    firstPass = true;
-//                    //pass to speed calc
-//                    speedFinal = speedCal.calculateVelocity(a,b,c,oldValues,interval,firstPass);
-//                    oldValues.add(event.values[0]);
-//                    oldValues.add(event.values[1]);
-//                    oldValues.add(event.values[2]);
-//                }
-//                else {
-//                    firstPass = false;
-//
-//                    speedFinal = speedCal.calculateVelocity(a,b,c,oldValues,interval,firstPass);
-//                    oldValues.clear();
-//                    oldValues = new ArrayList<Float>();
-//                    oldValues.add(event.values[0]);
-//                    oldValues.add(event.values[1]);
-//                    oldValues.add(event.values[2]);
-//                }
-
 
                 lastUpdate = curTime;
                 filterOut = lowPass(event.values.clone(), filterOut);
@@ -316,14 +300,6 @@ public class ServiceSensor extends Service implements SensorEventListener {
                 }
             }
         }
-//        if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR){
-//
-//            Log.i(Variables_Globals.TAG,"??????????????????"+Float.toString(event.values[0]));
-//            noOfSteps++;
-//            Log.i(Variables_Globals.TAG,"COUNTING!!!"+Float.toString(noOfSteps));
-//
-//
-//        }
 
     }
 
@@ -347,7 +323,6 @@ public class ServiceSensor extends Service implements SensorEventListener {
 
     public void onDestroy(){
         Log.v("SERVICE","Service killed");
-
         super.onDestroy();
         mAsyncTask.cancel(true);
         mSensorManager.unregisterListener(this);

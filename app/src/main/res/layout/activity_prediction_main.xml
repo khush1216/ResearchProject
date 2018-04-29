@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+<LinearLayout
 
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -12,9 +17,10 @@
         android:layout_height="wrap_content"
         android:textSize="16dp"
         android:layout_weight="1"
+        android:textColor="@color/colorPrimaryDark"
         android:textStyle="bold"
         android:paddingTop="50dp"
-        android:text="ACTIVITY IDENTIFIED : " />
+        android:text="ACTIVITY IDENTIFIED (Without peaks): " />
 
     <TextView
         android:id="@+id/activityID"
@@ -30,6 +36,7 @@
 
     <Button
         android:id="@+id/startbtn"
+        android:background="@drawable/mybutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -38,11 +45,65 @@
 
     <Button
         android:id="@+id/stopbtn"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/mybutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:onClick="onstopbtnClick"
         android:text="STOP" />
+</LinearLayout>
+
+
+    <LinearLayout
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"
+            android:layout_weight="1"
+            android:textColor="@color/colorPrimaryDark"
+            android:textStyle="bold"
+            android:paddingTop="50dp"
+            android:text="ACTIVITY IDENTIFIED : (With peaks)" />
+
+        <TextView
+            android:id="@+id/activityID2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16dp"
+            android:layout_weight="1"
+            android:paddingBottom="30dp"
+            android:textStyle="bold"
+            />
+
+
+
+        <Button
+            android:id="@+id/startbtn2"
+            android:background="@drawable/mybutton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="onStart2Clicked"
+            android:text="START" />
+
+        <Button
+            android:id="@+id/stopbtn2"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/mybutton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="onStop2Clicked"
+            android:text="STOP" />
+    </LinearLayout>
 </LinearLayout>
 
 

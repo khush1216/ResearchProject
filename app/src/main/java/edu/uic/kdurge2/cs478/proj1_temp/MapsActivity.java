@@ -26,6 +26,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -46,6 +47,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.firebase.database.DatabaseReference;
+import com.meapsoft.CaloriesLostClass;
 import com.meapsoft.SpeedCalculator;
 
 import org.json.JSONObject;
@@ -67,6 +70,17 @@ import java.util.Map;
 
 import database.events.History;
 
+
+
+//this activity updates the activity predicted on the map, receives continues location updates from location service
+//It also plots a polyline between the current location and the user's final destination. it gives the average speed at which the
+//user is moving and the average distance.
+
+//NOTE: The location service take continuous location updates and calculates the distance based on them. Thus if you're in a still location
+//the speed and calories calculated will be incorrect. you need to move from one location to another.
+
+//NOTE2: The prediction of activity takes place once it collects data for upto atleast 10 seconds
+
     public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -78,6 +92,8 @@ import database.events.History;
 
     private Location lastLocation;
     Date currentTime;
+
+    boolean isServiceRunning;
 
     private Button start,stop;
     FetchURL fetchurl;
@@ -109,8 +125,12 @@ import database.events.History;
     SupportMapFragment mapFragment;
     long timeAtOrigin, timeAtDestForSpeed;
     double speedNew;
+    private CaloriesLostClass calLostObj;
 
     Thread threadGetLocUpdates;
+
+    //receive broadcasts from Location service for location and Sensor Service for activity prediction update
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,17 +142,26 @@ import database.events.History;
         txtDist = (TextView) findViewById(R.id.distance);
         txtSpeed = (TextView) findViewById(R.id.speed);
         txtActivity = (TextView) findViewById(R.id.activityUpdate);
+        txtCalorie = (TextView) findViewById(R.id.calorie);
 
         mServiceIntent = new Intent(this,ServiceSensor.class);
+        mServiceIntent.putExtra("callingActivityName","MapsActivity");
+
         mLocationServ = new Intent(this, MyLocationService.class);
         activityList = new ArrayList<String>();
         storeActivityList = new ArrayList<String>();
-        //uiLocHandler = new Handler(Looper.getMainLooper());
+
+        double p1 = Double.parseDouble(UserProfile.userProfileDetails.get("weight"));
+        double p2 = Double.parseDouble(UserProfile.userProfileDetails.get("age"));
+        String s1 = UserProfile.userProfileDetails.get("gender");
+        calLostObj = new CaloriesLostClass(Double.parseDouble(UserProfile.userProfileDetails.get("weight")),Double.parseDouble(UserProfile.userProfileDetails.get("age")),UserProfile.userProfileDetails.get("gender"));
 
         speedNew = 0;
+        distanceFromLocService = 0;
         latestActivity = "";
 
         historyObjList = new ArrayList<History>();
+
 
         bReceiver = new BroadcastReceiver() {
 
@@ -148,7 +177,8 @@ import database.events.History;
                     double dis = speedC.getDistanceFromLatLonInKm(origin.latitude,origin.longitude,lastLocation.getLatitude(),lastLocation.getLongitude());
                     speedNew = speedC.speedCal(dis,timeAtOrigin,timeAtDestForSpeed);
 
-                    updateMapDist();
+                    double calLost = calLostObj.calculateLostCals(timeAtDestForSpeed-timeAtOrigin, 0.0);
+                    updateMapDist(calLost);
                 }
                 else if (intent.getAction().equals("activity")){
                     activityPredicted = intent.getStringExtra("activity");
@@ -170,16 +200,10 @@ import database.events.History;
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
         }
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
          mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
 
         mapFragment.getMapAsync(this);
-    }
-
-    private void getSpeedBetweenTwoPoints(){
-
-
     }
 
     private void updateMapActivity(){
@@ -193,7 +217,7 @@ import database.events.History;
                 time2 = System.currentTimeMillis();
                 long duration = time2 - time1;
                 currentTime = Calendar.getInstance().getTime();
-                histObj = new History(latestActivity,time1, currentTime.toString(),duration, 10,10,10);
+                histObj = new History(latestActivity,time1, currentTime.toString(),duration, speedNew,distanceFromLocService,0);
                 historyObjList.add(histObj);
                 time1 = System.currentTimeMillis();
                 txtActivity.setText(updatedAct);
@@ -205,7 +229,9 @@ import database.events.History;
         }
         txtSpeed.setText(Double.toString(speedNew) + "m/s");
     }
-    private void updateMapDist(){
+    private void updateMapDist(double calLost){
+
+        txtCalorie.setText(Double.toString(calLost));
         txtDist.setText(Double.toString(distanceFromLocService) + "km");
     }
 
@@ -235,6 +261,8 @@ import database.events.History;
     }
 
     public void onStartPredClick(View view){
+
+        isServiceRunning = true;
 
         timeAtOrigin = System.currentTimeMillis();
         time1 = System.currentTimeMillis();
@@ -284,8 +312,7 @@ import database.events.History;
         latestActivity = "";
         stopService(mLocationServ);
         stopService(mServiceIntent);
-
-
+        isServiceRunning = false;
 
     }
 
@@ -648,6 +675,32 @@ import database.events.History;
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if(isServiceRunning){
+            stopService(mLocationServ);
+            stopService(mServiceIntent);
+        }
+        origin = null;
+        destination = null;
+        super.onBackPressed();
+        finish();
+    }
+
+    @Override
+    public void onDestroy(){
+
+        if(isServiceRunning){
+            stopService(mLocationServ);
+            stopService(mServiceIntent);
+        }
+        super.onDestroy();
+
+
 
     }
 }
