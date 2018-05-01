@@ -1,2 +1,15 @@
-Commit 1 - App for Collection of Data. 
-Cuurently working on Running Algorithms and Predictions
+INITIAL COMMITS - App for Collection of Data. 
+Code for collection: MovementService.java, MainActivity.java
+
+RECENT COMMITS:
+Activity Recognition Methods tried:
+1. Change the number of features (smoothened magnitude values) to be passed to FFT. Tried with 32,64,128,256.
+Best results by 64. Accuracy for 4 classes - Walking, Running, Cycling, Still = 96%. 
+With Walking , Running, Still. Accuracy obtained by Random Forests was 100%. Tested for overfitting. 
+2. Changed the features itself. Sent max magnitude amongst smoothened readings, top 8-32 peaks and time between peaks to the FFT.
+Observed accuracy reduced than the previously observed one. Best result by Logistic Regression for 3 classes - 86%, for 4 classes 80%
+
+Working prototype: Predicts accurately for 3-4 classes with initial classifier. - code found in ServiceSensor.java, MapsActivity.java
+Current Work: Ongoing realtime testing on second classifier - (with peaks and time between peaks). - code found in ServiceSensorPeaks.java, MapsActivity.java
+
+
