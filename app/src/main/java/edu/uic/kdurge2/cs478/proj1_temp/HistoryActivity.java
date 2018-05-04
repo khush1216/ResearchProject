@@ -2,11 +2,14 @@ package edu.uic.kdurge2.cs478.proj1_temp;
 
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +22,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -108,7 +114,48 @@ public class HistoryActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
-   private class MyAdapter extends ArrayAdapter {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.history_options_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.signOutHist:
+                AuthUI.getInstance()
+                        .signOut(this)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            public void onComplete(@NonNull Task<Void> task) {
+                                // user is now signed out
+                                startActivity(new Intent(HistoryActivity.this, SignInActivity.class));
+                                finish();
+                            }
+                        });
+                return true;
+            case R.id.deleteHist:
+
+                DatabaseReference deleteRef = UserProfile.mUserDatabaseRef.child("history");
+                deleteRef.getRef().removeValue();
+                activityDateList.clear();
+                dataObject.clear();
+                adapter.notifyDataSetChanged();
+
+                Toast.makeText(this, "Your history is now deleted...", Toast.LENGTH_SHORT).show();
+
+                return true;
+            case R.id.help:
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+    private class MyAdapter extends ArrayAdapter {
 
        private Context context;
        private ArrayList<DataSnapshot> dataSnapshotArrayList;

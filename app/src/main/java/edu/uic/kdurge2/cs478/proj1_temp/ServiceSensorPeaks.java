@@ -59,7 +59,8 @@ import com.peakChecker.PeakCheckerClass;
 
 public class ServiceSensorPeaks extends Service implements SensorEventListener {
 
-    private static final int noOfFeatures = Variables_Globals.ACCELEROMETER_FEATURES + 2;
+    //8 peaks, max mag, no of peaks, time between peaks, class label
+    private static final int noOfFeatures = Variables_Globals.PEAKS_FFT_FEATURES + 4;
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
     private Sensor mStepCounter;
@@ -138,15 +139,15 @@ public class ServiceSensorPeaks extends Service implements SensorEventListener {
         ArrayList<Attribute> allAttributes = new ArrayList<Attribute>();
 
         ArrayList<String> classLabels = new ArrayList<String>(1);
+        classLabels.add("SIT");
         classLabels.add("RUN");
         classLabels.add("WALK");
-        classLabels.add("SIT");
 
         mClassAttribute = new Attribute(Variables_Globals.CLASS_LABEL_KEY,classLabels);
 
 
 
-        for(int i=1;i<=Variables_Globals.PEAKS_FFT_FEATURES; i++){
+        for(int i=0;i<Variables_Globals.PEAKS_FFT_FEATURES; i++){
             allAttributes.add(new Attribute(Variables_Globals.FFT_VARIABLE + Integer.toString(i)));
         }
 
@@ -211,6 +212,7 @@ public class ServiceSensorPeaks extends Service implements SensorEventListener {
                     }
                     accBlock256[blockSize256++] = mInputBufferPeaks.take().doubleValue();
                     if(blockSize256 == Variables_Globals.ACCELEROMETER_FEATURES_256) {
+
                         blockSize256 = 0;
                         max = .0;
 
@@ -220,33 +222,40 @@ public class ServiceSensorPeaks extends Service implements SensorEventListener {
                             }
                         }
 
-                        Double[] accBlock256Ref = new Double[256];
-                        accBlock256Ref = conversionMethodsObj.convertPrimitiveToRef(accBlock256);
+                        ArrayList<Double> accBlock256List = new ArrayList<Double>();
+                        for(int i=0;i<accBlock256.length;i++){
+                            accBlock256List.add(accBlock256[i]);
+                        }
+
+//                        double[] accBlock256Ref = new double[256];
+//                        accBlock256Ref = conversionMethodsObj.convertPrimitiveToRef(accBlock256);
+//
+//
+//                        ArrayList<Double> accBlock256List = new ArrayList<Double>(Arrays.asList(accBlock256));
+
+                        ArrayList<Double> peaksFFT = new ArrayList<Double>();
+                       // ArrayList<Float> accBlock256FloatList = new ArrayList<Float>();
+                        //accBlock256FloatList = conversionMethodsObj.convertDoubleToFloat(accBlock256List);
+
+                        peaksFFT = peakChecker.getPeakDouble(accBlock256List);
 
 
-                        ArrayList<Double> accBlock256List = new ArrayList<Double>(Arrays.asList(accBlock256Ref));
 
-                        ArrayList<Float> peaksFFT = new ArrayList<Float>();
-                        ArrayList<Float> accBlock256FloatList = new ArrayList<Float>();
-                        accBlock256FloatList = conversionMethodsObj.convertDoubleToFloat(accBlock256List);
+                        //ArrayList<Double> peaksFFTDouble = new ArrayList<Double>();
+                        //peaksFFTDouble = conversionMethodsObj.convertFloatToDoubleList(peaksFFT);
 
-                        peaksFFT = peakChecker.getPeak(accBlock256FloatList);
-
-                        ArrayList<Double> peaksFFTDouble = new ArrayList<Double>();
-                        peaksFFTDouble = conversionMethodsObj.convertFloatToDoubleList(peaksFFT);
-
-                        if(peaksFFTDouble.size() > 8){
+                        if(peaksFFT.size() > 8){
                             no_of_peaks = peaksFFT.size();
-                            averagepeakTimeDiff = peakChecker.getPeakTimeConcurrent(peakTimeMap,peaksFFTDouble);
-                            List<Float> top8peaks = new ArrayList<Float>();
+                            //Log.i("MAP",peakTimeMap.toString());
+                            averagepeakTimeDiff = peakChecker.getPeakTimeConcurrent(peakTimeMap,peaksFFT);
+                            List<Double> top8peaks = new ArrayList<Double>();
                             top8peaks = peaksFFT.subList(0, 8);
 
-                            float re[] = new float[top8peaks.size()];
                             for(int i=0;i<top8peaks.size();i++){
-                                re[i] = top8peaks.get(i);
+                                realValue[i] = top8peaks.get(i);
                             }
 
-                            realValue = conversionMethodsObj.convertFloatsToDoubles(re);
+                            //realValue = conversionMethodsObj.convertFloatsToDoubles(re);
                             fft.fft(realValue,imgValue);
 
                             for(int i=0;i<realValue.length;i++){
@@ -255,11 +264,12 @@ public class ServiceSensorPeaks extends Service implements SensorEventListener {
                                 imgValue[i] = .0;
                             }
 
-                            inst.setValue(9,max);
-                            inst.setValue(10,no_of_peaks);
-                            inst.setValue(11,averagepeakTimeDiff);
+                            inst.setValue(Variables_Globals.PEAKS_FFT_FEATURES,max);
+                            inst.setValue(Variables_Globals.PEAKS_FFT_FEATURES + 1,no_of_peaks);
+                            inst.setValue(Variables_Globals.PEAKS_FFT_FEATURES + 2,averagepeakTimeDiff);
 
                             mDataInstance.add(inst);
+
                             double classPredicted = logisticClassifier.classifyInstance(inst);
                             Log.i(Variables_Globals.TAG,"ACTIVITY RECOGNIZED!!!"+mDataInstance.classAttribute().value((int) classPredicted));
                             //send this to classifier
@@ -283,11 +293,10 @@ public class ServiceSensorPeaks extends Service implements SensorEventListener {
 
         protected void onProgressUpdate(String... progress){
 
-            Log.i(Variables_Globals.TAG," in on progress!!!!!!!!!!!!!!!!!!!");
 
             String class_label = progress[0];
-            broadcastIntent = new Intent("activity");
-            broadcastIntent.putExtra("activity",class_label);
+            broadcastIntent = new Intent("activityPeaks");
+            broadcastIntent.putExtra("activityPeaks",class_label);
             LocalBroadcastManager.getInstance(ServiceSensorPeaks.this).sendBroadcast(broadcastIntent);
 
 

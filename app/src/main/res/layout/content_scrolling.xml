@@ -88,6 +88,9 @@
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:layout_marginTop="8dp"
+                android:focusable="false"
+                android:clickable="true"
+                android:inputType="date"
                 android:hint="Enter dob..."
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="#727272" />
@@ -225,7 +228,7 @@
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:maxLines="1"
-                android:text="Weight *"
+                android:text="Weight *(lbs)"
                 android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                 android:textColor="#212121" />
 

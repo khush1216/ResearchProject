@@ -13,6 +13,7 @@ import java.util.Map;
 
 public class PeakCheckerClass {
 
+    //method to detect peaks
     public ArrayList<Float> getPeak(ArrayList<Float> peakList){
 
         ArrayList<Float> result = new ArrayList<Float>();
@@ -48,6 +49,7 @@ public class PeakCheckerClass {
         return result;
     }
 
+    //get the avergae time between all peaks
     private Long getDifference(ArrayList<Long> timeList){
         ArrayList<Long> timeDiffList = new ArrayList<>();
         Long returnval = 0L;
@@ -69,6 +71,44 @@ public class PeakCheckerClass {
 
     }
 
+    //method to detect peaks on an arrayblocking queue
+    public ArrayList<Double> getPeakDouble(ArrayList<Double> peakList){
+
+        ArrayList<Double> result = new ArrayList<Double>();
+        int count = 0;
+
+        for(double x : peakList){
+            if(count == 0){
+                if(peakList.get(count + 1) < x){
+                    result.add(x);
+                    count++;
+                    continue;
+                }
+            }
+
+            if(count == peakList.size()-1){
+                if(x>peakList.get(count-1)){
+                    result.add(x);
+
+                }
+                break;
+            }
+            if(x>peakList.get(count + 1) && x > peakList.get(count - 1)){
+                result.add(x);
+                count ++;
+                continue;
+            }
+
+            count++;
+
+        }
+
+        //Log.i("TAG","$$$$$$$$$$$$^^^^^^^^^^^^^^^^^^"+ result.toString());
+        return result;
+    }
+
+
+    //used blocking queue and concurrent hashmap
     public Long getPeakTime(HashMap<Float,Long> peakTimeMap, ArrayList<Float> peakList){
 
         ArrayList<Float> magnitudeList = new ArrayList<>(peakTimeMap.keySet());
@@ -84,12 +124,15 @@ public class PeakCheckerClass {
         return averageTimeDiff;
     }
 
+
+
     public Long getPeakTimeConcurrent(Map<Double,Long> peakTimeMap, ArrayList<Double> peakList){
 
         ArrayList<Double> magnitudeList = new ArrayList<>(peakTimeMap.keySet());
 
         ArrayList<Long> timeList = new ArrayList<Long>();
         for(double x : peakList){
+            boolean flagPeak = peakTimeMap.containsKey(x);
             timeList.add(peakTimeMap.get(x));
         }
 

@@ -15,22 +15,6 @@ public class SpeedCalculator {
     public static double v0,vx,vy,vz;
     public double velocities;
 
-//    public double calculateVelocity(float x, float y, float z, ArrayList<Float> previousValues, long interval, boolean firstPass){
-//            double acceleration;
-//            if(firstPass){
-//                v0 = 0;
-//                acceleration = x+y+z;
-//            }
-//            else {
-//                acceleration = x + y + z - previousValues.get(0) - previousValues.get(1) - previousValues.get(2);
-//            }
-//            double velocity = v0 + (acceleration*(interval/(double)1000));
-//            velocities= Math.abs(velocity);
-//            v0= velocity;
-//            return Math.round(velocities*100.0)/100.0;
-//
-//    }
-
     public double calculateVelocity(float x, float y, float z, long interval, boolean firstPass){
         if(firstPass){
             v0 = 0;
@@ -52,11 +36,11 @@ public class SpeedCalculator {
         vy = vyn;
         vz = vzn;
 
-//        Log.i("INTERVAL!!!", Long.toString(interval));
         return velocities;
 
     }
 
+    //Haversine distance
     public double getDistanceFromLatLonInKm(double lat1, double lon1, double lat2, double lon2)
     {
         final int R = 6371;
@@ -72,10 +56,12 @@ public class SpeedCalculator {
 
         return d;
     }
+
     private double deg2rad(double deg)
     {
         return deg * (Math.PI / 180);
     }
+
 
     public double speedCal(double distance, long startTime, long endtime){
 

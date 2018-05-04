@@ -6,6 +6,7 @@ import java.util.ArrayList;
  * Created by Khushbu on 4/24/2018.
  */
 
+//general class that contains methods to convert float to double, double to Double, double to float.
 public class ConversionMethods {
 
     public Double[] convertPrimitiveToRef(double[] array){

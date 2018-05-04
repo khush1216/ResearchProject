@@ -1,5 +1,6 @@
 package edu.uic.kdurge2.cs478.proj1_temp;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -12,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -32,13 +34,19 @@ import database.events.ProfileClass;
 
 import org.w3c.dom.Text;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class UserProfile extends BaseActivity {
 
     private String userDetails[];
     private boolean dataExists=false;
+
+    DatePickerDialog.OnDateSetListener date;
+    Calendar myCalendar;
 
     public static HashMap<String,String> userProfileDetails;
 
@@ -69,6 +77,30 @@ public class UserProfile extends BaseActivity {
         email_id = (TextView) findViewById(R.id.emailID);
         genderF = (RadioButton) findViewById(R.id.female);
         genderM = (RadioButton) findViewById(R.id.male);
+
+        myCalendar = Calendar.getInstance();
+        date = new DatePickerDialog.OnDateSetListener() {
+
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear,
+                                  int dayOfMonth) {
+                myCalendar.set(Calendar.YEAR, year);
+                myCalendar.set(Calendar.MONTH, monthOfYear);
+                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                updateLabel();
+            }
+
+        };
+
+        dob.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new DatePickerDialog(UserProfile.this, date, myCalendar
+                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
+                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
+            }
+        });
+
 
         Intent intent = getIntent();
         userDetails = intent.getStringArrayExtra("userdetails");
@@ -103,6 +135,13 @@ public class UserProfile extends BaseActivity {
                         .setAction("Action", null).show();
             }
         });
+    }
+
+    private void updateLabel() {
+        String myFormat = "MM/dd/yy"; //In which you need put here
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+
+        dob.setText(sdf.format(myCalendar.getTime()));
     }
 
     public void onRadioButtonClicked(View view){

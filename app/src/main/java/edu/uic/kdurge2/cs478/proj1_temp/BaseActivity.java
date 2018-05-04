@@ -1,5 +1,6 @@
 package edu.uic.kdurge2.cs478.proj1_temp;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -7,12 +8,15 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -68,8 +72,16 @@ public class BaseActivity extends AppCompatActivity {
 
                         if (id == R.id.dataCollect) {
 
-                            Intent i = new Intent(BaseActivity.this,MainActivity.class);
-                            startActivity(i);
+                            if(SignInActivity.staticUserDetailsBase[2].equals("khushidurge@gmail.com")) {
+
+                                Intent i = new Intent(BaseActivity.this, MainActivity.class);
+                                startActivity(i);
+                            }
+                            else{
+                                showDialogPop();
+                                Toast.makeText(BaseActivity.this, "Not Authorized!", Toast.LENGTH_SHORT).show();
+
+                            }
 
                         }
 
@@ -79,8 +91,16 @@ public class BaseActivity extends AppCompatActivity {
                         }
 
                         if(id == R.id.treadmillAct){
-                            Intent i = new Intent(BaseActivity.this,PredictionMainActivity.class);
-                            startActivity(i);
+                            if(SignInActivity.staticUserDetailsBase[2].equals("khushidurge@gmail.com")) {
+
+                                Intent i = new Intent(BaseActivity.this, PredictionMainActivity.class);
+                                startActivity(i);
+                            }
+                            else{
+                                showDialogPop();
+                                Toast.makeText(BaseActivity.this, "Not Authorized!", Toast.LENGTH_SHORT).show();
+
+                            }
                         }
 
                         if(id == R.id.signout2){
@@ -106,11 +126,9 @@ public class BaseActivity extends AppCompatActivity {
                             startActivity(i);
                         }
 
-                            // close drawer when item is tapped
+                        // close drawer when item is tapped
                         mDrawerLayout.closeDrawers();
 
-                        // Add code here to update the UI based on the item selected
-                        // For example, swap UI fragments here
 
                         return true;
                     }
@@ -124,6 +142,33 @@ public class BaseActivity extends AppCompatActivity {
         setTitle("ACTIVITY RECOGNITION");
         toolbar.setTitleTextColor(0xFFFFFFFF);
 
+    }
+
+    public void showDialogPop(){
+        LayoutInflater li = LayoutInflater.from(this);
+        View promptsView = li.inflate(R.layout.dialog_box, null);
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                this);
+        alertDialogBuilder.setView(promptsView);
+        alertDialogBuilder
+                .setCancelable(false)
+                .setPositiveButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,int id) {
+                                // get user input and set it to result
+                                // edit text
+                            }
+                        })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 
     @Override

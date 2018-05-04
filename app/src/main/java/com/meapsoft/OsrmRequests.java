@@ -18,6 +18,9 @@ import java.nio.charset.Charset;
  * Created by Khushbu on 4/28/2018.
  */
 
+//class for sending requests to OSRM routing server. Used this instead of google maps as it is free and Google maps has a minimum number
+    // of requests that can be sent.
+
 public class OsrmRequests {
 
     public void sendRequestToOSRM(double lat1, double lon1, double lat2, double lon2) {

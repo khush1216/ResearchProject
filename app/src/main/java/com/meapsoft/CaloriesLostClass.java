@@ -6,6 +6,7 @@ package com.meapsoft;
 
 public class CaloriesLostClass {
 
+
     private double weight;
     private double age;
     private String gender;
@@ -21,6 +22,9 @@ public class CaloriesLostClass {
         this.gender =  g;
 
     }
+
+    //calculate the calorie lost based on the distance moved, weight, gender, age and time.
+    // here heart rate has been considered a constant average.
 
     public double calculateLostCals(long time, double heartRate){
 

@@ -8,6 +8,8 @@ import edu.uic.kdurge2.cs478.proj1_temp.UserProfile;
  * Created by Khushbu on 4/13/2018.
  */
 
+
+//Class stores history into database and retrieves history from database
 public class History {
 
     private String activity,currDateTime;

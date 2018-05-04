@@ -8,6 +8,7 @@ import java.util.HashMap;
  * Created by Khushbu on 4/9/2018.
  */
 
+//get user profile details from database
 public class ProfileClass {
 
     public ProfileClass(){

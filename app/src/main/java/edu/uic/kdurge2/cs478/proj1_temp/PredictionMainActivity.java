@@ -37,7 +37,8 @@ import java.util.ArrayList;
 //is about 86%.
 public class PredictionMainActivity extends BaseActivity {
 
-    public TextView classLabel;
+    TextView classLabel;
+    TextView classLabelPeaks;
     private Button startBtn;
     Intent mServiceIntent;
     Intent mPeakServiceIntent;
@@ -53,6 +54,7 @@ public class PredictionMainActivity extends BaseActivity {
         setContentView(R.layout.activity_prediction_main);
 
         classLabel = (TextView) findViewById(R.id.activityID);
+        classLabelPeaks = (TextView) findViewById(R.id.activityID2);
         startBtn = (Button) findViewById(R.id.startbtn);
 
         mPeakServiceIntent = new Intent(this,ServiceSensorPeaks.class);
@@ -71,6 +73,12 @@ public class PredictionMainActivity extends BaseActivity {
                     String activityPredicted = intent.getStringExtra("activity");
 
                     classLabel.setText(activityPredicted);
+                }
+
+                if (intent.getAction().equals("activityPeaks")) {
+                    String activityPredicted = intent.getStringExtra("activityPeaks");
+
+                    classLabelPeaks.setText(activityPredicted);
                 }
                 }
 
@@ -130,6 +138,8 @@ public class PredictionMainActivity extends BaseActivity {
 
             IntentFilter intentFilter =    new IntentFilter();
             intentFilter.addAction("activity");
+            intentFilter.addAction("activityPeaks");
+
             LocalBroadcastManager.getInstance(this).registerReceiver(bReceiver, intentFilter);
 
 
