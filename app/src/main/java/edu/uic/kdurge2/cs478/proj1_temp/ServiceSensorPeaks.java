@@ -110,7 +110,8 @@ public class ServiceSensorPeaks extends Service implements SensorEventListener {
     public void onCreate(){
         super.onCreate();
         mInputBufferPeaks = new ArrayBlockingQueue<Double>(Variables_Globals.ACCELEROMETER_BUFFER_SIZE);
-        readModel();
+        readModelFromInternal();
+        //readModel();
         speedCal = new SpeedCalculator();
         oldValues = new ArrayList<Float>();
 
@@ -342,6 +343,24 @@ public class ServiceSensorPeaks extends Service implements SensorEventListener {
                     mInputBufferPeaks.add(new Double(magnitude));
                 }
             }
+        }
+
+    }
+
+    public void readModelFromInternal() {
+
+        String fpath = this.getFilesDir() + "/" + "LogisticRegressionClassifier.model";
+
+
+        try {
+
+            logisticClassifier = (Classifier) weka.core.SerializationHelper.read(fpath);
+
+        }
+        catch (Exception e){
+            Toast.makeText(this, "File Not available to classify!", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+
         }
 
     }

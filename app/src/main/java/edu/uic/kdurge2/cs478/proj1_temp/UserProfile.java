@@ -78,6 +78,8 @@ public class UserProfile extends BaseActivity {
         genderF = (RadioButton) findViewById(R.id.female);
         genderM = (RadioButton) findViewById(R.id.male);
 
+        Log.i("FILES DIRECTORY!!",this.getFilesDir().toString());
+
         myCalendar = Calendar.getInstance();
         date = new DatePickerDialog.OnDateSetListener() {
 

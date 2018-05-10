@@ -16,6 +16,7 @@ import android.os.IBinder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.text.DecimalFormat;
@@ -61,6 +62,8 @@ public class ServiceSensor extends Service implements SensorEventListener {
     private Attribute mAttribute;
     private OnSensorChangedAsyncTask mAsyncTask;
     Classifier j48Classifier;
+
+    Classifier internalStrRandomFor;
     private Intent mServiceIntent;
     DecimalFormat f;
     private ArrayList<Float> speedCalc, oldValues;
@@ -88,7 +91,8 @@ public class ServiceSensor extends Service implements SensorEventListener {
     public void onCreate(){
         super.onCreate();
         mInputBuffer = new ArrayBlockingQueue<Double>(Variables_Globals.ACCELEROMETER_BUFFER_SIZE);
-        readModel();
+        readModelFromInternal();
+        //readModel();
         speedCal = new SpeedCalculator();
         oldValues = new ArrayList<Float>();
     }
@@ -303,10 +307,29 @@ public class ServiceSensor extends Service implements SensorEventListener {
 
     }
 
+    public void readModelFromInternal() {
+
+        String fpath = this.getFilesDir() + "/" + "RandomForests.model";
+
+
+        try {
+
+            j48Classifier = (Classifier) weka.core.SerializationHelper.read(fpath);
+
+        }
+        catch (Exception e){
+            Toast.makeText(this, "File Not available to classify!", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+
+        }
+
+    }
+
+
     public void readModel() {
 
         try {
-            String path  = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + "RandomForest_fakerun_100%.model";
+            String path  = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + "RandomForests.model";
             j48Classifier = (Classifier) weka.core.SerializationHelper.read(path);
         }
         catch (Exception e){
