@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/signOutHist"
+        android:title="Sign Out"/>
+    <item android:id="@+id/deleteHist"
+        android:title="Delete History"/>
+    <item android:id="@+id/helpHist"
+        android:title="Help" />
+</menu>
