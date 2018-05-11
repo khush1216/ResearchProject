@@ -39,7 +39,12 @@ public class PredictionMainActivity extends BaseActivity {
 
     TextView classLabel;
     TextView classLabelPeaks;
-    private Button startBtn;
+    private Button startBtn, stopBtn1;
+    private Button startbtn2 ,stopBtn2;
+
+    private boolean isService1Running = false;
+    private boolean isService2Running = false;
+
     Intent mServiceIntent;
     Intent mPeakServiceIntent;
     private BroadcastReceiver bReceiver;
@@ -55,7 +60,12 @@ public class PredictionMainActivity extends BaseActivity {
 
         classLabel = (TextView) findViewById(R.id.activityID);
         classLabelPeaks = (TextView) findViewById(R.id.activityID2);
-        startBtn = (Button) findViewById(R.id.startbtn);
+
+        /*startBtn = (Button) findViewById(R.id.startbtn);
+        startbtn2 = (Button) findViewById(R.id.startbtn2);
+
+        stopBtn1 = (Button) findViewById(R.id.stopBtn);
+        stopBtn2 = (Button) findViewById(R.id.stopbtn2);*/
 
         mPeakServiceIntent = new Intent(this,ServiceSensorPeaks.class);
         mServiceIntent = new Intent(this,ServiceSensor.class);
@@ -164,40 +174,64 @@ public class PredictionMainActivity extends BaseActivity {
 
     public void onStartClick(View view){
 
-        threadForFirstService = new Thread(){
+        if(isService2Running){
+            Toast.makeText(PredictionMainActivity.this, "SERVICE WITH PEAKS IS RUNNING. STOP THAT FIRST", Toast.LENGTH_SHORT).show();
 
-            public void run(){
-                startService(mServiceIntent);
-            }
-        };
-        threadForFirstService.start();
+        }
+        else {
+            isService1Running = true;
+
+            threadForFirstService = new Thread() {
+
+                public void run() {
+                    startService(mServiceIntent);
+                }
+            };
+            threadForFirstService.start();
+
+            Toast.makeText(this, "SERVICE 1 RUNNING!", Toast.LENGTH_SHORT).show();
+        }
     }
 
-    public void onStart2Clicked(View view){
+    public void onStart2Clicked(View view) {
 
-        threadForSecondService = new Thread() {
-            @Override
-            public void run() {
+        if (isService1Running) {
+            Toast.makeText(PredictionMainActivity.this, "SERVICE 1 IS RUNNING ON SAME THREAD, STOP THAT FIRST!", Toast.LENGTH_SHORT).show();
 
-                startService(mPeakServiceIntent);            }
-        };
-        threadForSecondService.start();
+        } else {
+
+            isService2Running = true;
+            threadForSecondService = new Thread() {
+                @Override
+                public void run() {
+
+                    startService(mPeakServiceIntent);
+                }
+            };
+            threadForSecondService.start();
+
+            Toast.makeText(this, "SERVICE 2 RUNNING!", Toast.LENGTH_SHORT).show();
+
+        }
     }
 
     public void onStop2Clicked(View view){
+
+        isService2Running = false;
         threadForSecondService.interrupt();
 
         Toast.makeText(this, "SERVICE 2 STOPPED!", Toast.LENGTH_SHORT).show();
 
         stopService(mPeakServiceIntent);
+
     }
 
     public void onstopbtnClick(View view){
 
+        isService1Running = false;
         threadForFirstService.interrupt();
-        Toast.makeText(this, "SERVICE STOPPED!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "SERVICE 1 STOPPED!", Toast.LENGTH_SHORT).show();
         stopService(mServiceIntent);
-        Log.i("steps are :", "@@@@@@@@@@@@@@@@@@@@@"+ Float.toString(ServiceSensor.noOfSteps));
 
     }
 

@@ -46,11 +46,14 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.meapsoft.FFT;
 import com.meapsoft.SpeedCalculator;
 
 
 public class ServiceSensor extends Service implements SensorEventListener {
+
 
     private static final int noOfFeatures = Variables_Globals.ACCELEROMETER_FEATURES + 2;
     private SensorManager mSensorManager;
@@ -304,6 +307,13 @@ public class ServiceSensor extends Service implements SensorEventListener {
                 }
             }
         }
+
+    }
+
+    public void readFromCloud(){
+
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference mClassifierStorage = storage.getReferenceFromUrl("gs://datacollection-30f75.appspot.com/").child("RandomForests[1].model");
 
     }
 

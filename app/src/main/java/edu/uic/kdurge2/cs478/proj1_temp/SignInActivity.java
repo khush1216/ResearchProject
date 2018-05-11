@@ -24,6 +24,10 @@ import com.google.firebase.storage.UploadTask;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 
@@ -54,6 +58,8 @@ public class SignInActivity extends AppCompatActivity {
             Toast.makeText(this, "Connect to Internet and Re-start!", Toast.LENGTH_SHORT).show();
 
         }
+
+        storeFileFromRawToInternal();
     }
 
     private boolean checkForInternetConn(){
@@ -102,4 +108,37 @@ public class SignInActivity extends AppCompatActivity {
         }
     }
 
+
+    public void storeFileFromRawToInternal(){
+        InputStream databaseInputStream = getResources().openRawResource(R.raw.random_forests);
+        InputStream databaseInputStreamFile2 = getResources().openRawResource(R.raw.logistic_regression_classifier);
+
+        String path1 = this.getFilesDir() + "/" + "RandomForests.model";
+        String path2 = this.getFilesDir() + "/" + "LogisticRegressionClassifier.model";
+
+
+        try {
+            byte[] buffer = new byte[databaseInputStream.available()];
+            databaseInputStream.read(buffer);
+            File targetFile = new File(path1);
+            OutputStream outStream1 = new FileOutputStream(targetFile);
+            outStream1.write(buffer);
+
+            byte[] buffer2 = new byte[databaseInputStreamFile2.available()];
+            databaseInputStreamFile2.read(buffer2);
+            File classifierFile2 = new File(path2);
+            OutputStream outStream2 = new FileOutputStream(classifierFile2);
+            outStream2.write(buffer2);
+        }
+        catch (Exception e){
+            Toast.makeText(this, "Cannot store classifier!", Toast.LENGTH_SHORT).show();
+        }
+
+        finally {
+
+            Toast.makeText(this, "Uploaded classifiers to internal storage!", Toast.LENGTH_SHORT).show();
+            //close output streams
+        }
+
+    }
 }
