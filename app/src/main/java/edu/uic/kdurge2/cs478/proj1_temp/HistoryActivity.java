@@ -105,10 +105,13 @@ public class HistoryActivity extends BaseActivity {
 
                 break;
             case R.id.viewData:
+                Toast.makeText(this, "No Access! Request access from owner!", Toast.LENGTH_SHORT).show();
 
                 break;
 
             case R.id.help:
+                Toast.makeText(this, "View Documentation @ http://www.khushbu-durge.info", Toast.LENGTH_LONG).show();
+
                 break;
         }
         return super.onOptionsItemSelected(item);
