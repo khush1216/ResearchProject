@@ -12,4 +12,6 @@ Observed accuracy reduced than the previously observed one. Best result by Logis
 Working prototype: Predicts accurately for 3-4 classes with initial classifier. - code found in ServiceSensor.java, MapsActivity.java
 Current Work: Ongoing realtime testing on second classifier - (with peaks and time between peaks). - code found in ServiceSensorPeaks.java, MapsActivity.java
 
+Commit - zero
+
 
